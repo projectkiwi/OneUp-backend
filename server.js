@@ -2,61 +2,43 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
-var Test = require('./models/test');
+var winston = require('winston');
+var expressWinston = require('express-winston');
+//MODELS
+var ChallengeGroup = require('./models/challengegroup');
+var Challenge = require('./models/challenge');
+var Attempt = require('./models/attempt');
 var User = require('./models/user');
+//MONGO
 mongoose.connect('mongodb://localhost:27017/oneup');
 
-// Create our Express application
 var app = express();
-
-// Use the body-parser package in our application
 app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-// Use environment defined port or 3000
-var port = process.env.PORT || 3000;
-
-// Create our Express router
 var router = express.Router();
 
-// Initial dummy route for testing
-// http://localhost:3000/api
-app.get('/', function(req, res) {
-  res.json({ message: 'yay' }); 
+router.use(function(req, res, next) {
+    console.log('----');
+    console.log(req.method+ ": " +req.originalUrl);
+    console.log(req.body);
+    console.log('----');
+    next();
 });
 
-// Create a new route with the prefix /tests
-var testsRoute = app.route('/tests');
-
-// Create endpoint /api/tests for POSTS
-testsRoute.post(function(req, res) {
-  // Create a new instance of the Test model
-
-  var user = new User({name: 'Example Domain'})
-  user.save()
-
-  var test = new Test();
-
-  // Set the test properties that came from the POST data
-  test.name = req.body.name;
-  test.type = req.body.type;
-  test.quantity = req.body.quantity;
-  test.test = user._id;
-
-  // Save the test and check for errors
-  test.save(function(err) {
-    if (err)
-      res.send(err);
-
-    res.json({ message: 'Test added!', data: test });
-  });
+router.get('/', function(req, res) {
+  res.json({ message: 'OK' }); 
 });
 
-// Create endpoint /api/tests for GET
-testsRoute.get(function(req, res) {
-  // Use the Test model to find all test
-  Test.find().populate("test").exec(function(err, tests) {
+/**
+* Routes for /challenges
+*/ 
+
+var challengesRoute = router.route('/challenges');
+//GET get all challenges
+challengesRoute.get(function(req, res) {
+  Challenge.find().populate("attempts").exec(function(err, tests) {
     if (err)
       res.send(err);
 
@@ -64,54 +46,59 @@ testsRoute.get(function(req, res) {
   });
 });
 
-// Create a new route with the /tests/:test_id prefix
-var testRoute = router.route('/tests/:test_id');
+//POST create a new challenge
+challengesRoute.post(function(req, res) {
 
-// Create endpoint /api/tests/:test_id for GET
-testRoute.get(function(req, res) {
-  // Use the Test model to find a specific test
-  Test.findById(req.params.test_id, function(err, test) {
+  var challenge = new Challenge();
+  challenge.name = req.body.name;
+  challenge.description = req.body.description;
+  challenge.pattern = req.body.pattern;
+  challenge.categories = req.body.categories.split(",");
+  challenge.save();
+
+  challenge.save(function(err) {
     if (err)
       res.send(err);
 
-    res.json(test);
+    res.json({ message: 'Challenge added!', data: challenge });
   });
+
 });
 
-// Create endpoint /api/tests/:test_id for PUT
-testRoute.put(function(req, res) {
-  // Use the Test model to find a specific test
-  Test.findById(req.params.test_id, function(err, test) {
+var challengeDetailRoute = router.route('/challenges/:challenge_id');
+
+//GET challenge details
+challengeDetailRoute.get(function(req, res) {
+  Challenge.findById(req.params.challenge_id, function(err, data) {
     if (err)
       res.send(err);
 
-    // Update the existing test quantity
-    test.quantity = req.body.quantity;
-
-    // Save the test and check for errors
-    test.save(function(err) {
-      if (err)
-        res.send(err);
-
-      res.json(test);
-    });
+    res.json(data);
   });
 });
 
-// Create endpoint /api/tests/:test_id for DELETE
-testRoute.delete(function(req, res) {
-  // Use the Test model to find a specific test and remove it
-  Test.findByIdAndRemove(req.params.test_id, function(err) {
+var challengeAttemptsRoute = router.route('/challenges/:challenge_id/attempts');
+//POST submit a challenge attemtp
+challengeAttemptsRoute.post(function(req, res) {
+  Challenge.findById(req.params.challenge_id, function(err, challenge) {
     if (err)
       res.send(err);
 
-    res.json({ message: 'Test removed from the locker!' });
+    var attempt = new Attempt();
+    attempt.challenge =  req.params.challenge_id;
+    attempt.save();
+
+    challenge.attempts.push(attempt);
+    challenge.save();
+    res.json(challenge);
   });
 });
+
 
 // Register all our routes with /api
 app.use('/api', router);
 
 // Start the server
+var port = process.env.PORT || 3000;
 app.listen(port);
 console.log('running on port ' + port);

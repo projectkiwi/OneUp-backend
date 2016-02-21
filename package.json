@@ -10,6 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.14.2",
-    "express": "^4.13.4"
+    "colors": "^1.1.2",
+    "express": "^4.13.4",
+    "express-winston": "^1.2.0",
+    "winston": "^2.1.1"
   }
 }
