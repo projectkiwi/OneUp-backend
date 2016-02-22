@@ -27,9 +27,9 @@ router.use(function(req, res, next) {
     next();
 });
 
-router.get('/', function(req, res) {
-  res.json({ message: 'OK' }); 
-});
+// router.get('/', function(req, res) {
+//   res.json({ message: 'OK' }); 
+// });
 
 /**
 * Routes for /challenges
@@ -96,7 +96,7 @@ challengeAttemptsRoute.post(function(req, res) {
 
 
 // Register all our routes with /api
-app.use('/api', router);
+app.use('/', router);
 
 // Start the server
 var port = process.env.PORT || 3000;
