@@ -8,6 +8,7 @@ var expressWinston = require('express-winston');
 var ChallengeGroup = require('./models/challengegroup');
 var Challenge = require('./models/challenge');
 var Attempt = require('./models/attempt');
+var Asset = require('./models/asset');
 var User = require('./models/user');
 //MONGO
 mongoose.connect('mongodb://localhost:27017/oneup');
@@ -85,6 +86,9 @@ challengeAttemptsRoute.post(function(req, res) {
       res.send(err);
 
     var attempt = new Attempt();
+    var asset1 = new Asset();
+    asset1.save();
+    attempt.preview_img = asset1;
     attempt.challenge =  req.params.challenge_id;
     attempt.save();
 
