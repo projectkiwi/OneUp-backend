@@ -5,7 +5,7 @@ var ChallengeSchema   = new mongoose.Schema({
   name: String,
   attempts : [{ type: mongoose.Schema.ObjectId, ref: 'Attempt' }],
   location: { type: mongoose.Schema.ObjectId, ref: 'Location' },
-  description: { type: String, default: "Description Place Holder" },
+  description: { type: String, default: 'Description Place Holder' },
   categories: [String],
   expires_at: { type: Date, default: Date.now },
   pattern: String

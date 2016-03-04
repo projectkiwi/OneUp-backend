@@ -38,7 +38,7 @@ var challengesRoute = router.route('/challenges');
 // GET all challenges
 challengesRoute.get(function(req, res) {
   var options = {
-    populate: 'attemps',
+    populate: 'attempts',
     offset: parseInt(req.headers.offset), 
     limit: parseInt(req.headers.limit)
   };
@@ -111,7 +111,37 @@ challengeAttemptRoute.post(function(req, res) {
 var localNewChallengesRoute = router.route('/challenges/local/new');
 
 localNewChallengesRoute.get(function(req, res) {
-  // Challenge.find().sort('')
+  var options = {
+    populate: 'attempts',
+    sort: { _id: 1},
+    offset: parseInt(req.headers.offset), 
+    limit: parseInt(req.headers.limit)
+  };
+
+  Challenge.paginate({}, options, function(err, challenges) {
+    if (err)
+      res.send(err);
+
+    res.json(challenges);
+  });
+});
+
+var localPopularChallengesRoute = router.route('/challenges/local/popular');
+
+localPopularChallengesRoute.get(function(req, res) {
+  var options = {
+    populate: 'attempts',
+    sort: { vote_total: -1},
+    offset: parseInt(req.headers.offset),
+    limit: parseInt(req.hearers.limit)
+  };
+
+  Challenge.paginate({}, options, function(err, challenges) {
+    if (err)
+      res.send(err);
+
+    res.json(challenges);
+  });
 });
 
 // Route for /users
