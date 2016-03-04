@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var winston = require('winston');
 var expressWinston = require('express-winston');
+var mongoosePaginate = require('mongoose-paginate');
 
 // MODELS
 var ChallengeGroup = require('./models/challengegroup');
@@ -36,7 +37,13 @@ var challengesRoute = router.route('/challenges');
 
 // GET all challenges
 challengesRoute.get(function(req, res) {
-  Challenge.find().populate("attempts").exec(function(err, challenges) {
+  var options = {
+    populate: 'attemps',
+    offset: parseInt(req.headers.offset), 
+    limit: parseInt(req.headers.limit)
+  };
+
+  Challenge.paginate({}, options, function(err, challenges) {
     if (err)
       res.send(err);
 
@@ -98,6 +105,13 @@ challengeAttemptRoute.post(function(req, res) {
     challenge.save();
     res.json({ message: 'Attempt Created!', data: attempt});
   });
+});
+
+// Route for /challenges/local/new
+var localNewChallengesRoute = router.route('/challenges/local/new');
+
+localNewChallengesRoute.get(function(req, res) {
+  // Challenge.find().sort('')
 });
 
 // Route for /users

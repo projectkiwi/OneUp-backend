@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var mongoosePaginate = require('mongoose-paginate');
 
 var ChallengeSchema   = new mongoose.Schema({
   name: String,
@@ -8,5 +9,7 @@ var ChallengeSchema   = new mongoose.Schema({
   categories: [String],
   pattern: String
 });
+
+ChallengeSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model('Challenge', ChallengeSchema);
