@@ -87,18 +87,36 @@ challengeAttemptRoute.post(function(req, res) {
       res.send(err);
 
     var attempt = new Attempt();
+    var vote = new Vote();
   
     attempt.preview_img = "https://placeholdit.imgix.net/~text?txtsize=33&txt=&w=350&h=150"; 
     attempt.gif_img = "https://media.giphy.com/media/xT9DPO1KTBOzoTVr8Y/giphy.gif";
     attempt.challenge =  req.params.challenge_id;
     attempt.save();
 
+    attempt.votes.push(vote);
     challenge.attempts.push(attempt);
     challenge.save();
     res.json(challenge);
   });
 });
 
+// Route for /challenges/:attempt_id/:user_id/vote
+var voteRoute = router.route('/challenges/:attempt_id/:user_id/vote');
+
+voteRoute.post(function(req, res) {
+  Challenge.findById(req.params.challenge_id, function(err, challenge) {
+    if (err)
+      res.send(err);
+  });
+
+  Attempt.findById(req.params.attempt_id, function(err, attempt) {
+      var vote = new Vote();
+      vote.user = req.params.user_id;
+    
+      attempt.votes.push(vote);
+  });
+});
 
 // Route for /users
 var usersRoute = router.route('/users');
