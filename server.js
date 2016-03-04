@@ -28,6 +28,10 @@ router.use(function(req, res, next) {
     console.log('----');
     console.log(req.method + ": " + req.originalUrl);
     console.log(req.body);
+    if(req.headers.offset === undefined)
+      req.headers.offset = 0;
+    if(req.headers.limit === undefined)
+      req.headers.limit = 20;
     console.log('----');
     next();
 });
