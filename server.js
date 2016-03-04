@@ -10,6 +10,7 @@ var ChallengeGroup = require('./models/challengegroup');
 var Challenge = require('./models/challenge');
 var Attempt = require('./models/attempt');
 var User = require('./models/user');
+var Vote = require('./models/vote');
 
 // MONGO
 mongoose.connect('mongodb://localhost:27017/oneup');
@@ -87,34 +88,15 @@ challengeAttemptRoute.post(function(req, res) {
       res.send(err);
 
     var attempt = new Attempt();
-    var vote = new Vote();
   
     attempt.preview_img = "https://placeholdit.imgix.net/~text?txtsize=33&txt=&w=350&h=150"; 
     attempt.gif_img = "https://media.giphy.com/media/xT9DPO1KTBOzoTVr8Y/giphy.gif";
     attempt.challenge =  req.params.challenge_id;
     attempt.save();
 
-    attempt.votes.push(vote);
     challenge.attempts.push(attempt);
     challenge.save();
-    res.json(challenge);
-  });
-});
-
-// Route for /challenges/:attempt_id/:user_id/vote
-var voteRoute = router.route('/challenges/:attempt_id/:user_id/vote');
-
-voteRoute.post(function(req, res) {
-  Challenge.findById(req.params.challenge_id, function(err, challenge) {
-    if (err)
-      res.send(err);
-  });
-
-  Attempt.findById(req.params.attempt_id, function(err, attempt) {
-      var vote = new Vote();
-      vote.user = req.params.user_id;
-    
-      attempt.votes.push(vote);
+    res.json({ message: 'Attempt Created!', data: attempt});
   });
 });
 
@@ -123,7 +105,7 @@ var usersRoute = router.route('/users');
 
 // GET all users
 usersRoute.get(function(req, res) {
-  User.find().populate("bookmarks").exec(function(err, users) {
+  User.find().exec(function(err, users) {
     if (err)
       res.send(err);
 
@@ -137,7 +119,7 @@ usersRoute.post(function(req, res) {
   user.nickname = req.body.nickname;
   user.facebook_id = req.body.facebook_id;
 
-  if (req.body.setting != undefined) {
+  if (req.body.settings != undefined) {
     user.settings = req.body.settings.split(",");
   }
   
@@ -176,7 +158,7 @@ userBookmarkRoute.post(function(req, res) {
         res.send(err);
 
       user.bookmarks.push(challenge);
-      res.send('Bookmark added!');
+      res.json({message: 'Bookmark Added!', data: challenge});
     });
   });
 });
