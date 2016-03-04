@@ -9,7 +9,6 @@ var expressWinston = require('express-winston');
 var ChallengeGroup = require('./models/challengegroup');
 var Challenge = require('./models/challenge');
 var Attempt = require('./models/attempt');
-var Asset = require('./models/asset');
 var User = require('./models/user');
 
 // MONGO
@@ -88,9 +87,9 @@ challengeAttemptRoute.post(function(req, res) {
       res.send(err);
 
     var attempt = new Attempt();
-    var asset1 = new Asset();
-    asset1.save();
-    attempt.preview_img = asset1; 
+  
+    attempt.preview_img = "https://placeholdit.imgix.net/~text?txtsize=33&txt=&w=350&h=150"; 
+    attempt.gif_img = "https://media.giphy.com/media/xT9DPO1KTBOzoTVr8Y/giphy.gif";
     attempt.challenge =  req.params.challenge_id;
     attempt.save();
 
