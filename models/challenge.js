@@ -4,7 +4,7 @@ var ChallengeSchema   = new mongoose.Schema({
   name: String,
   attempts  : [{ type: mongoose.Schema.ObjectId, ref: 'Attempt' }],
   location : { type: mongoose.Schema.ObjectId, ref: 'Location' },
-  description: String,
+  description: {type: String, default: "description"},
   categories: [String],
   pattern: String,
 });
