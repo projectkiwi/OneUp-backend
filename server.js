@@ -81,7 +81,7 @@ var challengeDetailRoute = router.route('/challenges/:challenge_id');
 
 // GET challenge details
 challengeDetailRoute.get(function(req, res) {
-  Challenge.findById(req.params.challenge_id, function(err, challenge) {
+  Challenge.findById(req.params.challenge_id, function(err, challenge).populate('attempts') {
     if (err)
       res.send(err);
 

@@ -24,30 +24,11 @@
 	"buffers":
 	[
 		{
-			"contents": "// Load required packages\nvar express = require('express');\nvar mongoose = require('mongoose');\nvar bodyParser = require('body-parser');\nvar winston = require('winston');\nvar expressWinston = require('express-winston');\nvar mongoosePaginate = require('mongoose-paginate');\n\n// MODELS\nvar ChallengeGroup = require('./models/challengegroup');\nvar Challenge = require('./models/challenge');\nvar Attempt = require('./models/attempt');\nvar User = require('./models/user');\nvar Vote = require('./models/vote');\n\n// MONGO\nmongoose.connect('mongodb://localhost:27017/oneup');\n\nvar app = express();\n\napp.use(bodyParser.urlencoded({\n  extended: true\n}));\n\nvar router = express.Router();\n\nrouter.use(function(req, res, next) {\n    console.log('----');\n    console.log(req.method + \": \" + req.originalUrl);\n    console.log(req.body);\n    console.log('----');\n    next();\n});\n\n// Routes for /challenges \nvar challengesRoute = router.route('/challenges');\n\n// GET all challenges\nchallengesRoute.get(function(req, res) {\n  /*Challenge.find().populate(\"attempts\").exec(function(err, challenges) {\n    if (err)\n      res.send(err);\n\n    res.json(challenges);\n  });*/\n\n  Challenge.paginate({}, { req.body.offset, req.body.limit }, function(err, challenges) {\n    if (err)\n      res.send(err);\n\n    res.json(challenges);\n  });\n});\n\n// POST create a new challenge\nchallengesRoute.post(function(req, res) {\n  var challenge = new Challenge();\n  challenge.name = req.body.name;\n  challenge.description = req.body.description;\n  challenge.pattern = req.body.pattern;\n\n  if (req.body.categories != undefined) {\n    challenge.categories = req.body.categories.split(\",\");\n  }\n  \n  challenge.save();\n\n  challenge.save(function(err) {\n    if (err)\n      res.send(err);\n\n    res.json({ message: 'Challenge added!', data: challenge });\n  });\n});\n\n// Route for /challenges/:challenge_id\nvar challengeDetailRoute = router.route('/challenges/:challenge_id');\n\n// GET challenge details\nchallengeDetailRoute.get(function(req, res) {\n  Challenge.findById(req.params.challenge_id, function(err, challenge) {\n    if (err)\n      res.send(err);\n\n    res.json(challenge);\n  });\n});\n\n// Route for /challenges/:challenge_id/attempts\nvar challengeAttemptRoute = router.route('/challenges/:challenge_id/attempts');\n\n// POST submit a challenge attempt\nchallengeAttemptRoute.post(function(req, res) {\n  Challenge.findById(req.params.challenge_id, function(err, challenge) {\n    if (err)\n      res.send(err);\n\n    var attempt = new Attempt();\n  \n    attempt.preview_img = \"https://placeholdit.imgix.net/~text?txtsize=33&txt=&w=350&h=150\"; \n    attempt.gif_img = \"https://media.giphy.com/media/xT9DPO1KTBOzoTVr8Y/giphy.gif\";\n    attempt.challenge =  req.params.challenge_id;\n    attempt.save();\n\n    challenge.attempts.push(attempt);\n    challenge.save();\n    res.json({ message: 'Attempt Created!', data: attempt});\n  });\n});\n\n// Route for /challenges/local/new\nvar localNewChallengesRoute = router.route('/challenges/local/new');\n\nlocalNewChallengesRoute.get(function(req, res) {\n  // Challenge.find().sort('')\n});\n\n// Route for /users\nvar usersRoute = router.route('/users');\n\n// GET all users\nusersRoute.get(function(req, res) {\n  User.find().exec(function(err, users) {\n    if (err)\n      res.send(err);\n\n    res.json(users);\n  });\n});\n\n// POST a user\nusersRoute.post(function(req, res) {\n  var user = new User();\n  user.nickname = req.body.nickname;\n  user.facebook_id = req.body.facebook_id;\n\n  if (req.body.settings != undefined) {\n    user.settings = req.body.settings.split(\",\");\n  }\n  \n  user.save(function(err) {\n    if (err)\n      res.send(err);\n\n    res.json({ message: 'User Created!', data: user})\n  });\n});\n\n// Route for /users/:user_id\nvar userDetailRoute = router.route('/users/:user_id');\n\n// GET user details\nuserDetailRoute.get(function(req, res) {\n  User.findById(req.params.user_id, function(err, user) {\n    if (err)\n      res.send(err);\n\n    res.json(user);\n  });\n});\n\n// Route for /users/:user_id/bookmarks\nvar userBookmarkRoute = router.route('/users/:user_id/bookmarks');\n\n// POST a user bookmark\nuserBookmarkRoute.post(function(req, res) {\n  User.findById(req.params.user_id, function(err, user) {\n    if (err)\n      res.send(err);\n\n    Challenge.findById(req.body.challenge_id, function(err, challenge) {\n      if (err) \n        res.send(err);\n\n      user.bookmarks.push(challenge);\n      res.json({message: 'Bookmark Added!', data: challenge});\n    });\n  });\n});\n\n// Register all our routes\napp.use('/', router);\n\n// Start the server\nvar port = process.env.PORT || 3000;\napp.listen(port);\nconsole.log('Running on port ' + port);",
-			"file": "server.js",
-			"file_size": 4598,
-			"file_write_time": 131015387784713138,
+			"file": "/C/Users/Jeremy Craven/Desktop/html5up-helios/index.html",
 			"settings":
 			{
-				"buffer_size": 4610,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "models/challenge.js",
-			"settings":
-			{
-				"buffer_size": 506,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "models/attempt.js",
-			"settings":
-			{
-				"buffer_size": 501,
-				"line_ending": "Unix"
+				"buffer_size": 13768,
+				"line_ending": "Windows"
 			}
 		}
 	],
@@ -83,20 +64,19 @@
 	},
 	"expanded_folders":
 	[
-		"/C/Dev/Projects/OneUp/OneUp-backend",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models"
 	],
 	"file_history":
 	[
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/challenge.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/server.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/attempt.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/user.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/.gitignore",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/vote.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/test.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/comment.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/challengegroup.js",
-		"/C/Dev/Projects/OneUp/OneUp-backend/models/attempt.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/location.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/package.json",
 		"/C/Users/Jeremy Craven/Desktop/grepsort.c",
@@ -144,88 +124,30 @@
 			[
 				{
 					"buffer": 0,
-					"file": "server.js",
+					"file": "/C/Users/Jeremy Craven/Desktop/html5up-helios/index.html",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4610,
+						"buffer_size": 13768,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1209,
-								1209
+								673,
+								673
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
+							"syntax": "Packages/HTML/HTML.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 641.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "models/challenge.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 506,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								443,
-								443
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "models/attempt.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 501,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
 					"type": "text"
 				}
 			]
@@ -308,7 +230,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 447.0,
+	"side_bar_width": 342.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{
