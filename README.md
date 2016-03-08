@@ -39,6 +39,10 @@ The following **required** functionality is completed:
 
 - [ ] Build backend for bookmarks
 
+#### User Story 10
+
+- [ ] Create API Endpoint to create challenge - Jeremy
+
 ## License
 
 Copyright [2016] [Jeremy Craven and Nicky Semenza]
