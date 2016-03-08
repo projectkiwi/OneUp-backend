@@ -81,12 +81,12 @@ var challengeDetailRoute = router.route('/challenges/:challenge_id');
 
 // GET challenge details
 challengeDetailRoute.get(function(req, res) {
-  Challenge.findById(req.params.challenge_id, function(err, challenge).populate('attempts') {
+  Challenge.findById(req.params.challenge_id, function(err, challenge) {
     if (err)
       res.send(err);
 
     res.json(challenge);
-  });
+  }).populate('attempts');
 });
 
 // Route for /challenges/:challenge_id/attempts
