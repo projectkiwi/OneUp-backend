@@ -70,11 +70,14 @@ challengesRoute.get(function(req, res) {
 // POST create a new challenge
 challengesRoute.post(function(req, res) {
   console.log(req.body);
+  
   var challenge = new Challenge();
   challenge.name = req.body.name;
   challenge.description = req.body.description;
   challenge.pattern = req.body.pattern;
   challenge.categories = req.body.categories;
+  challenge.created_on = Date.now();
+  challenge.updated_on = Date.now();
   challenge.save(function(err) {
     if (err)
       res.send(err);
@@ -112,6 +115,7 @@ challengeAttemptRoute.post(function(req, res) {
     attempt.challenge =  req.params.challenge_id;
     attempt.save();
 
+    challenge.updated_on = Date.now();
     challenge.attempts.push(attempt);
     challenge.save();
     res.json({ message: 'Attempt Created!', data: attempt});
@@ -124,7 +128,7 @@ var localNewChallengesRoute = router.route('/challenges/local/new');
 localNewChallengesRoute.get(function(req, res) {
   var options = {
     populate: 'attempts',
-    sort: { _id: 1},
+    sort: { updated_on: -1},
     offset: parseInt(req.headers.offset), 
     limit: parseInt(req.headers.limit)
   };

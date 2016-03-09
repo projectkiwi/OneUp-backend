@@ -24,11 +24,11 @@
 	"buffers":
 	[
 		{
-			"file": "/C/Users/Jeremy Craven/Desktop/html5up-helios/index.html",
+			"file": "server.js",
 			"settings":
 			{
-				"buffer_size": 13768,
-				"line_ending": "Windows"
+				"buffer_size": 5407,
+				"line_ending": "Unix"
 			}
 		}
 	],
@@ -64,10 +64,12 @@
 	},
 	"expanded_folders":
 	[
+		"/C/Dev/Projects/OneUp/OneUp-backend",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models"
 	],
 	"file_history":
 	[
+		"/C/Users/Jeremy Craven/Desktop/html5up-helios/index.html",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/challenge.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/server.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/attempt.js",
@@ -124,27 +126,33 @@
 			[
 				{
 					"buffer": 0,
-					"file": "/C/Users/Jeremy Craven/Desktop/html5up-helios/index.html",
+					"file": "server.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 13768,
+						"buffer_size": 5407,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								673,
-								673
+								2255,
+								2255
+							],
+							[
+								2260,
+								2260
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/HTML/HTML.sublime-syntax"
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
 						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.x": -0.0,
+						"translation.y": 1784.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
