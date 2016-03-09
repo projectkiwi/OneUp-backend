@@ -16,6 +16,8 @@ var Vote = require('./models/vote');
 // MONGO
 mongoose.connect('mongodb://localhost:27017/oneup');
 
+
+var Table = require('cli-table');
 var app = express();
 
 app.use(bodyParser.urlencoded({
@@ -34,6 +36,27 @@ router.use(function(req, res, next) {
       req.headers.limit = 20;
     console.log('----');
     next();
+});
+
+router.route('/').get(function(req, res) {
+  var table = new Table({
+    head: ['Methods', 'Endpoint']
+});
+
+  router.stack.forEach(function(r){
+    var methods = [];
+  if (r.route && r.route.path){
+    
+    r.route.stack.forEach(function(s) {
+      methods.push(s.method);
+    }); 
+    table.push([methods, r.route.path,JSON.stringify(r.keys)]);
+    console.log(methods+"\t"+r.route.path);
+  }
+})
+
+console.log(table.toString());
+  res.json(router.stack);
 });
 
 // Routes for /challenges 
@@ -215,6 +238,6 @@ userBookmarkRoute.post(function(req, res) {
 app.use('/', router);
 
 // Start the server
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 3333;
 app.listen(port);
 console.log('Running on port ' + port);
