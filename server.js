@@ -109,7 +109,7 @@ challengeDetailRoute.get(function(req, res) {
       res.send(err);
 
     res.json(challenge);
-  });
+  }).populate('attempts');
 });
 
 // Route for /challenges/:challenge_id/attempts
