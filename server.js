@@ -238,6 +238,6 @@ userBookmarkRoute.post(function(req, res) {
 app.use('/', router);
 
 // Start the server
-var port = process.env.PORT || 3333;
+var port = process.env.PORT || 3000;
 app.listen(port);
 console.log('Running on port ' + port);
