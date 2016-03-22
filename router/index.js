@@ -51,10 +51,14 @@ console.log(table.toString());
 // Routes for /challenges 
 var challengesRoute = router.route('/challenges');
 
-// GET all challenges
+// GET global challenges
 challengesRoute.get(function(req, res) {
   var options = {
     populate: 'attempts',
+    sort: { 
+      challenge_votes: -1,
+      updated_on: -1
+    },
     offset: parseInt(req.headers.offset), 
     limit: parseInt(req.headers.limit)
   };

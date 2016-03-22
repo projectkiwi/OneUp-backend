@@ -23,30 +23,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "router/index.js",
-			"settings":
-			{
-				"buffer_size": 5673,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "models/challenge.js",
-			"settings":
-			{
-				"buffer_size": 615,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "models/attempt.js",
-			"settings":
-			{
-				"buffer_size": 501,
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -86,18 +62,29 @@
 	],
 	"file_history":
 	[
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/attempt.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/router/index.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/challenge.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/TestData.txt",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/location.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/node_modules/mongo-express/config.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/node_modules/mongo-express/config.default.js",
+		"/C/Users/Jeremy Craven/.mongorc.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/node_modules/mongo-express/package.json",
+		"/C/Dev/Projects/OneUp/OneUp-backend/node_modules/mongo-express/node_modules/snyk/lib/modules.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/node_modules/mongo-express/node_modules/snyk/cli/commands/modules.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/node_modules/mongo-express/config.js.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/node_modules/mongo-express/test/bson.js",
+		"/C/Users/Jeremy Craven/AppData/Roaming/npm/node_modules/mongo-express/config.default.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/server.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/package.json",
 		"/C/Users/Jeremy Craven/Desktop/html5up-helios/index.html",
-		"/C/Dev/Projects/OneUp/OneUp-backend/models/challenge.js",
-		"/C/Dev/Projects/OneUp/OneUp-backend/models/attempt.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/user.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/.gitignore",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/vote.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/test.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/comment.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/challengegroup.js",
-		"/C/Dev/Projects/OneUp/OneUp-backend/models/location.js",
 		"/C/Users/Jeremy Craven/Desktop/grepsort.c",
 		"/C/Dev/Projects/OneUp/OneUp-backend/OneUp-backend.sublime-project",
 		"/C/Users/Jeremy Craven/Desktop/Hw/grepsort.c",
@@ -138,95 +125,8 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "router/index.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 5673,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3618,
-								3618
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 3652.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "models/challenge.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 615,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								435,
-								435
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "models/attempt.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 501,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								437,
-								437
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				}
 			]
 		}
 	],
