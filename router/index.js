@@ -11,6 +11,7 @@ var Challenge = require('../models/challenge');
 var Attempt = require('../models/attempt');
 var User = require('../models/user');
 var Vote = require('../models/vote');
+var Location = require('../models/location');
 
 var router = express.Router();
 
@@ -79,9 +80,15 @@ challengesRoute.get(function(req, res) {
 // POST create a new challenge
 challengesRoute.post(function(req, res) {
   console.log(req.body);
-  
+
+  var location = new Location();
+  location.name = "Purdue";
+  //location.loc = [req.body.latitude, req.body.longitude];
+  location.loc = [40.4237, -86.9212];
+
   var challenge = new Challenge();
   challenge.name = req.body.name;
+  challenge.location  = location;
   challenge.description = req.body.description;
   challenge.pattern = req.body.pattern;
   challenge.categories = req.body.categories;
@@ -136,6 +143,7 @@ challengeAttemptRoute.post(function(req, res) {
 // Route for /challenges/like/:attempt_id
 var attemptLikeRoute = router.route('/challenges/like/:attempt_id');
 
+// PATCH like an attempt
 attemptLikeRoute.patch(function(req, res) {
   Attempt.findById(req.params.attempt_id, function(err, attempt) {
     if (err)
