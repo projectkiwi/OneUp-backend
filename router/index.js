@@ -12,17 +12,21 @@ var Attempt = require('../models/attempt');
 var User = require('../models/user');
 var Vote = require('../models/vote');
 
-  var router = express.Router();
-  router.use(function(req, res, next) {
-    console.log('----');
-    console.log(req.method + ": " + req.originalUrl);
-    console.log(req.body);
-    if(req.headers.offset === undefined)
-      req.headers.offset = 0;
-    if(req.headers.limit === undefined)
-      req.headers.limit = 20;
-    console.log('----');
-    next();
+var router = express.Router();
+
+router.use(function(req, res, next) {
+  console.log('----');
+  console.log(req.method + ": " + req.originalUrl);
+  console.log(req.body);
+
+  if (req.headers.offset === undefined)
+    req.headers.offset = 0;
+    
+  if (req.headers.limit === undefined)
+    req.headers.limit = 20;
+    
+  console.log('----');
+  next();
 });
 
 router.route('/').get(function(req, res) {
@@ -30,21 +34,22 @@ router.route('/').get(function(req, res) {
 
   var table = new Table({
     head: ['Methods', 'Endpoint']
-});
+  });
 
-  router.stack.forEach(function(r){
+  router.stack.forEach(function(r) {
     var methods = [];
-  if (r.route && r.route.path){
-    
-    r.route.stack.forEach(function(s) {
-      methods.push(s.method);
-    }); 
-    table.push([methods, r.route.path,JSON.stringify(r.keys)]);
-    console.log(methods+"\t"+r.route.path);
-  }
-})
+  
+    if (r.route && r.route.path) {
+      r.route.stack.forEach(function(s) {
+        methods.push(s.method);
+      });
 
-console.log(table.toString());
+      table.push([methods, r.route.path,JSON.stringify(r.keys)]);
+      console.log(methods+"\t"+r.route.path);
+    }
+  });
+
+  console.log(table.toString());
   res.json(router.stack);
 });
 
@@ -124,7 +129,32 @@ challengeAttemptRoute.post(function(req, res) {
     challenge.attempts.push(attempt);
     challenge.save();
 
-    res.json({ message: 'Attempt Created!', data: attempt});
+    res.json({ message: 'Attempt Created!', data: attempt });
+  });
+});
+
+// Route for /challenges/like/:attempt_id
+var attemptLikeRoute = router.route('/challenges/like/:attempt_id');
+
+attemptLikeRoute.patch(function(req, res) {
+  Attempt.findById(req.params.attempt_id, function(err, attempt) {
+    if (err)
+      res.send(err);
+
+    // Add user to vote list
+    attempt.vote_total += 1;
+    
+    Challenge.findById(attempt.challenge, function(err, challenge) {
+      if (err)
+        res.send(err);
+
+      challenge.challenge_votes += 1;
+      challenge.save();
+    });
+
+    attempt.save();
+
+    res.json({ message: 'Vote Recorded!' });
   });
 });
 
@@ -199,7 +229,7 @@ usersRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    res.json({ message: 'User Created!', data: user})
+    res.json({ message: 'User Created!', data: user })
   });
 });
 
@@ -230,7 +260,7 @@ userBookmarkRoute.post(function(req, res) {
         res.send(err);
 
       user.bookmarks.push(challenge);
-      res.json({message: 'Bookmark Added!', data: challenge});
+      res.json({ message: 'Bookmark Added!', data: challenge });
     });
   });
 });
