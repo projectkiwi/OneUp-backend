@@ -11,7 +11,8 @@ var Challenge = require('../models/challenge');
 var Attempt = require('../models/attempt');
 var User = require('../models/user');
 var Vote = require('../models/vote');
-
+var Location = require('../models/location');
+var FB = require('fb');
   var router = express.Router();
   router.use(function(req, res, next) {
     console.log('----');
