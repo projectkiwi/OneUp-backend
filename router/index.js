@@ -31,31 +31,36 @@ router.route('/').get(function(req, res) {
 
   var table = new Table({
     head: ['Methods', 'Endpoint']
-});
+  });
 
-  router.stack.forEach(function(r){
+  router.stack.forEach(function(r) {
     var methods = [];
-  if (r.route && r.route.path){
-    
-    r.route.stack.forEach(function(s) {
-      methods.push(s.method);
-    }); 
-    table.push([methods, r.route.path,JSON.stringify(r.keys)]);
-    console.log(methods+"\t"+r.route.path);
-  }
-})
+  
+    if (r.route && r.route.path) {
+      r.route.stack.forEach(function(s) {
+        methods.push(s.method);
+      });
 
-console.log(table.toString());
+      table.push([methods, r.route.path,JSON.stringify(r.keys)]);
+      console.log(methods+"\t"+r.route.path);
+    }
+  });
+
+  console.log(table.toString());
   res.json(router.stack);
 });
 
 // Routes for /challenges 
 var challengesRoute = router.route('/challenges');
 
-// GET all challenges
+// GET global challenges
 challengesRoute.get(function(req, res) {
   var options = {
     populate: 'attempts',
+    sort: { 
+      challenge_votes: -1,
+      updated_on: -1
+    },
     offset: parseInt(req.headers.offset), 
     limit: parseInt(req.headers.limit)
   };
@@ -71,11 +76,21 @@ challengesRoute.get(function(req, res) {
 // POST create a new challenge
 challengesRoute.post(function(req, res) {
   console.log(req.body);
+
+  var location = new Location();
+  location.name = "Purdue";
+  //location.loc = [req.body.latitude, req.body.longitude];
+  location.loc = [40.4237, -86.9212];
+
   var challenge = new Challenge();
   challenge.name = req.body.name;
+  challenge.location  = location;
   challenge.description = req.body.description;
   challenge.pattern = req.body.pattern;
   challenge.categories = req.body.categories;
+  challenge.created_on = Date.now();
+  challenge.updated_on = Date.now();
+  
   challenge.save(function(err) {
     if (err)
       res.send(err);
@@ -113,9 +128,37 @@ challengeAttemptRoute.post(function(req, res) {
     attempt.challenge =  req.params.challenge_id;
     attempt.save();
 
+    challenge.updated_on = Date.now();
     challenge.attempts.push(attempt);
     challenge.save();
-    res.json({ message: 'Attempt Created!', data: attempt});
+
+    res.json({ message: 'Attempt Created!', data: attempt });
+  });
+});
+
+// Route for /challenges/like/:attempt_id
+var attemptLikeRoute = router.route('/challenges/like/:attempt_id');
+
+// PATCH like an attempt
+attemptLikeRoute.patch(function(req, res) {
+  Attempt.findById(req.params.attempt_id, function(err, attempt) {
+    if (err)
+      res.send(err);
+
+    // Add user to vote list
+    attempt.vote_total += 1;
+    
+    Challenge.findById(attempt.challenge, function(err, challenge) {
+      if (err)
+        res.send(err);
+
+      challenge.challenge_votes += 1;
+      challenge.save();
+    });
+
+    attempt.save();
+
+    res.json({ message: 'Vote Recorded!' });
   });
 });
 
@@ -125,7 +168,10 @@ var localNewChallengesRoute = router.route('/challenges/local/new');
 localNewChallengesRoute.get(function(req, res) {
   var options = {
     populate: 'attempts',
-    sort: { _id: 1},
+    sort: {
+      updated_on: -1,
+      challenge_votes: -1
+    },
     offset: parseInt(req.headers.offset), 
     limit: parseInt(req.headers.limit)
   };
@@ -138,14 +184,18 @@ localNewChallengesRoute.get(function(req, res) {
   });
 });
 
+// Route for /challenges/local/popular
 var localPopularChallengesRoute = router.route('/challenges/local/popular');
 
 localPopularChallengesRoute.get(function(req, res) {
   var options = {
     populate: 'attempts',
-    sort: { vote_total: -1},
+    sort: { 
+      challenge_votes: -1,
+      updated_on: -1
+    },
     offset: parseInt(req.headers.offset),
-    limit: parseInt(req.hearers.limit)
+    limit: parseInt(req.headers.limit)
   };
 
   Challenge.paginate({}, options, function(err, challenges) {
@@ -183,7 +233,7 @@ usersRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    res.json({ message: 'User Created!', data: user})
+    res.json({ message: 'User Created!', data: user })
   });
 });
 
@@ -214,7 +264,7 @@ userBookmarkRoute.post(function(req, res) {
         res.send(err);
 
       user.bookmarks.push(challenge);
-      res.json({message: 'Bookmark Added!', data: challenge});
+      res.json({ message: 'Bookmark Added!', data: challenge });
     });
   });
 });

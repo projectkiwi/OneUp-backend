@@ -8,7 +8,7 @@ var AttemptSchema   = new mongoose.Schema({
   gif_img: String,
   comments: [{ type: mongoose.Schema.ObjectId, ref: 'Comment' }],
   votes: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
-  vote_total: { type: Number, default: 10 } // Will be length of votes[]
+  vote_total: { type: Number, default: 0 }
 });
 
 module.exports = mongoose.model('Attempt', AttemptSchema);

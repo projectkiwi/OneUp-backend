@@ -29,7 +29,7 @@ The following **required** functionality is completed:
 
 #### User Story 6
 
-- [ ] As a user, I would like to be able to view a list of my records held
+- [ ] As a user, I would like to be able to view a list of my records held - Jeremy
 
 #### User Story 8
 
@@ -41,7 +41,7 @@ The following **required** functionality is completed:
 
 #### User Story 10
 
-- [ ] Create API Endpoint to create challenge - Jeremy
+- [X] Create API Endpoint to create challenge - Jeremy
 
 ## License
 

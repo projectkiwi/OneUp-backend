@@ -1,0 +1,245 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"background-c",
+				"background-color"
+			],
+			[
+				"Challenge",
+				"ChallengeSchema"
+			],
+			[
+				"users",
+				"usersRoute"
+			],
+			[
+				"user",
+				"user_id"
+			],
+			[
+				"find",
+				"findById"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 588.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 588.0
+	},
+	"console":
+	{
+		"height": 186.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Dev/Projects/Personal Website/assets/css/main.css",
+		"/C/Dev/Projects/Personal Website/index.html",
+		"/C/Dev/Projects/Personal Website/assets/sass/main.scss",
+		"/C/Dev/Projects/Personal Website/images/banner.jpg",
+		"/C/Dev/Projects/Personal Website/images/pic01.jpg",
+		"/C/Users/Jeremy Craven/Desktop/font-awesome-4.5.0/font-awesome-4.5.0/css/font-awesome.min.css",
+		"/C/Dev/Projects/Personal Website/assets/fonts/fontawesome-webfont.svg",
+		"/C/Dev/Projects/Personal Website/assets/fonts/fontawesome-webfont.eot",
+		"/C/Users/Jeremy Craven/Desktop/font-awesome-4.5.0/font-awesome-4.5.0/css/font-awesome.css",
+		"/C/Dev/Projects/Personal Website/LICENSE.txt",
+		"/C/Dev/Projects/Personal Website/README.txt",
+		"/C/Dev/Projects/Personal Website/Personal Website",
+		"/C/Users/Jeremy Craven/Desktop/html5up-spectral/assets/css/main.css",
+		"/C/Users/Jeremy Craven/Desktop/html5up-spectral/assets/js/main.js",
+		"/C/Users/Jeremy Craven/Desktop/html5up-spectral/index.html",
+		"/C/Users/Jeremy Craven/Desktop/html5up-spectral/assets/js/jquery.scrollex.min.js",
+		"/C/Users/Jeremy Craven/Desktop/html5up-spectral/assets/js/util.js",
+		"/C/Users/Jeremy Craven/Desktop/html5up-spectral/elements.html",
+		"/C/Users/Jeremy Craven/Desktop/html5up-spectral/generic.html",
+		"/C/Users/Jeremy Craven/Desktop/html5up-helios/index.html",
+		"/C/Users/Jeremy Craven/Desktop/html5up-spectral/assets/js/skel.min.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/challenge.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/server.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/attempt.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/user.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/.gitignore",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/vote.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/test.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/comment.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/challengegroup.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/location.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/package.json",
+		"/C/Users/Jeremy Craven/Desktop/grepsort.c",
+		"/C/Dev/Projects/OneUp/OneUp-backend/OneUp-backend.sublime-project",
+		"/C/Users/Jeremy Craven/Desktop/Hw/grepsort.c",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/bookmark.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/Index.js"
+	],
+	"find":
+	{
+		"height": 50.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"special",
+			"style1",
+			"#63ace",
+			"icon",
+			"features",
+			"featur",
+			"wrapper",
+			"icon",
+			"actions",
+			"fit",
+			"actions",
+			"special",
+			"icon",
+			"75%",
+			"vertical",
+			"banner.jpg",
+			"banner.",
+			"major",
+			"inner",
+			"major",
+			"fa",
+			"loading",
+			"500",
+			"test"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 31.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "server.sublime-project",
+	"replace":
+	{
+		"height": 58.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 342.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

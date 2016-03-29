@@ -9,8 +9,7 @@ var LocationSchema = new mongoose.Schema({
 		  default: 'Point'
 		}, 
 		coordinates: [Number]
-	}
-
+	}	
 });
 
 LocationSchema.index({ location : '2dsphere' });
