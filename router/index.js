@@ -31,12 +31,15 @@ var jwt = require('jsonwebtoken');
     var token = req.headers.token;
     req.headers.auth = false;
     req.headers.user=null;
+    req.headers.userid=null;
+
     if(token)
     {
       var decoded = jwt.verify(token, 'secret');
       console.log(decoded)
       User.findById(decoded.uid, function(err, user) {
         req.headers.user=user;
+        req.headers.userid=user._id;
         req.headers.auth = true;
         next();
       });
@@ -329,8 +332,7 @@ router.route('/auth/facebook').post(function(req,res) {
     }
     else {
       user.save(function(err,u){
-        var uid = u._id;
-        var token = jwt.sign({uid: uid}, 'secret');
+        var token = jwt.sign({uid: u._id}, 'secret');
         res.json({ user: user, new_account: new_account, token: token });
       });
     }
@@ -343,7 +345,7 @@ router.route('/auth/facebook').post(function(req,res) {
 router.route('/geo').get(function(req, ress) {
 
 
-    resp_data = ["test"];
+    var resp_data = ["test"];    
     FB.api('oauth/access_token', {
         client_id: keys.fb_client_id,
         client_secret: keys.fb_client_secret,
@@ -355,8 +357,6 @@ router.route('/geo').get(function(req, ress) {
         }
         console.log(res);
         FB.setAccessToken(res.access_token);
-
-
         FB.api('/search', 'GET', {
                 "type": "place",
                 "center": "40.425803,-86.9100602",
@@ -375,16 +375,17 @@ router.route('/geo').get(function(req, ress) {
                             location.place_id = l.id;
                             location.location.coordinates = [l.location.longitude, l.location.latitude]; //backwards on purpose
                             location.save(function(err,location) {
-                                if (err)
-                                    console.log(err);
-                                resp_data.push(location);
+                                // resp_data.push(location);
                                 // console.log(location);
                             });
                             
-                        } else {
+                        }
+                        else {
                             //existing
-                            // console.log(location);
+                            console.log("yay");
+                            //console.log(location);
                             resp_data.push(location);
+                            console.log(resp_data);
                         }
                     });
                 });
@@ -392,11 +393,7 @@ router.route('/geo').get(function(req, ress) {
                 ress.json(resp_data);
             }
         );
-
     });
-
-
-
 });
 
 
