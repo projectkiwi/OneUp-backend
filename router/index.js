@@ -13,6 +13,8 @@ var User = require('../models/user');
 var Vote = require('../models/vote');
 var Location = require('../models/location');
 var FB = require('fb');
+
+var jwt = require('jsonwebtoken');
   var router = express.Router();
   router.use(function(req, res, next) {
     console.log('----');
@@ -23,7 +25,21 @@ var FB = require('fb');
     if(req.headers.limit === undefined)
       req.headers.limit = 20;
     console.log('----');
-    next();
+
+
+    var token = req.headers.token;
+    req.headers.auth = false;
+    if(token)
+    {
+      var decoded = jwt.verify(token, 'secret');
+      console.log(decoded)
+      User.findById(decoded.uid, function(err, user) {
+        req.headers.user=user;
+        req.headers.auth = true;
+        next();
+      });
+    }
+
 });
 
 router.route('/').get(function(req, res) {
@@ -90,7 +106,6 @@ challengesRoute.post(function(req, res) {
   challenge.categories = req.body.categories;
   challenge.created_on = Date.now();
   challenge.updated_on = Date.now();
-  
   challenge.save(function(err) {
     if (err)
       res.send(err);
@@ -269,5 +284,69 @@ userBookmarkRoute.post(function(req, res) {
   });
 });
 
+router.route('/me').get(function(req,res) {
+
+  console.log("auth:"+req.headers.auth);
+
+  var token = req.headers.token;
+  if(token)
+  {
+    var decoded = jwt.verify(token, 'secret');
+    console.log(decoded)
+
+    User.findById(decoded.uid, function(err, user) {
+      res.json(user);
+    });
+  }
+  else
+  res.json("oops");
+
+  
+
+});
+
+router.route('/auth/facebook').post(function(req,res) {
+  var access_token = req.body.access_token;
+  var email = req.body.email;
+
+  var new_account;
+  console.log(req.body);
+  User.findOne({ 'email': email },function (err, user) {
+                if (err || user===null)
+                  {
+                    console.log("new one");
+                    //create a new one
+                    user = new User();
+                    user.email = email;
+                    user.save(function(err) {
+                    if (err)
+                      console.log(err);
+                    });
+                    new_account = true;
+                  }
+                  else
+                  {
+                      new_account = false;
+                  }
+                  FB.setAccessToken(access_token);
+                  FB.api('me', { fields: ['id', 'name','email'] }, function (fb_res) {
+                    user.facebook_id = fb_res.id;
+                    if(fb_res.email != email)
+                      {
+                        res.json({error: "oops"});
+                        // console.log("oops emails dont match");
+                      }
+                      else 
+                    {
+                      user.save(function(err,u){
+                        var uid = u._id;
+                        var token = jwt.sign({uid: uid}, 'secret');
+                          res.json({ user: user, new_account: new_account, token: token });
+                        });
+                    }
+                  });
+              });
+
+});
 
 module.exports = router;

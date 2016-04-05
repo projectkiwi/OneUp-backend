@@ -15,6 +15,7 @@
     "express": "^4.13.4",
     "express-winston": "^1.2.0",
     "fb": "^1.0.2",
+    "jsonwebtoken": "^5.7.0",
     "mongoose": "^4.4.4",
     "mongoose-paginate": "^5.0.0",
     "winston": "^2.1.1"

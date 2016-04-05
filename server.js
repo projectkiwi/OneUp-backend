@@ -19,7 +19,9 @@ mongoose.connect('mongodb://localhost:27017/oneup');
 var app = express();
 
 app.use(bodyParser.json())
-
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+})); 
 
 // Register all our routes
 app.use('/', require('./router'));
