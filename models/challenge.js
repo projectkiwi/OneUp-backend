@@ -11,7 +11,7 @@ var ChallengeSchema = new mongoose.Schema({
   created_on: { type: Date },
   updated_on: { type: Date },
   expires_at: { type: Date, default: Date.now },
-  challenge_votes: { type: Number, default: 0 }
+  challenge_likes: { type: Number, default: 0 }
 });
 
 ChallengeSchema.plugin(mongoosePaginate);

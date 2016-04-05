@@ -86,7 +86,7 @@ challengesRoute.get(function(req, res) {
   var options = {
     populate: 'attempts',
     sort: { 
-      challenge_votes: -1,
+      challenge_likes: -1,
       updated_on: -1
     },
     offset: parseInt(req.headers.offset), 
@@ -172,27 +172,38 @@ attemptLikeRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
+    var increment = 0;
+
     // Check if user already voted
 
     // If not voted, add to list and increase vote count
     // If already voted, remove from list and decrease vote count
 
     // Add user to vote list
-    //attempt.votes.push(req.header.)
+    var index = attempt.likes.indexOf(req.headers.userid);
 
-    attempt.vote_total += 1;
+    if (index == -1) {
+      attempt.likes.push(req.headers.userid);
+      increment = 1;
+    }
+    else {
+      attempt.likes = attempt.likes.splice(index, 1);
+      increment = -1;
+    }
+
+    attempt.like_total += increment;
     
     Challenge.findById(attempt.challenge, function(err, challenge) {
       if (err)
         res.send(err);
 
-      challenge.challenge_votes += 1;
+      challenge.challenge_likes += increment;
       challenge.save();
     });
 
     attempt.save();
 
-    res.json({ message: 'Vote Recorded!' });
+    res.json({ message: 'Like Recorded!' });
   });
 });
 
@@ -204,7 +215,7 @@ localNewChallengesRoute.get(function(req, res) {
     populate: 'attempts',
     sort: {
       updated_on: -1,
-      challenge_votes: -1
+      challenge_likes: -1
     },
     offset: parseInt(req.headers.offset), 
     limit: parseInt(req.headers.limit)
@@ -225,7 +236,7 @@ localPopularChallengesRoute.get(function(req, res) {
   var options = {
     populate: 'attempts',
     sort: { 
-      challenge_votes: -1,
+      challenge_likes: -1,
       updated_on: -1
     },
     offset: parseInt(req.headers.offset),
@@ -361,13 +372,10 @@ router.route('/auth/facebook').post(function(req,res) {
 
 
 
-router.route('/geo').get(function(req, ress) {
-    resp_data = ["test"];
+//router.route('/geo').get(function(req, ress) {
+//    resp_data = ["test"];
 
 router.route('/geo').get(function(req, req_response) {
-
-   
-
     FB.api('oauth/access_token', {
         client_id: keys.fb_client_id,
         client_secret: keys.fb_client_secret,
