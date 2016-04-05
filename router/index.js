@@ -4,12 +4,11 @@ var bodyParser = require('body-parser');
 var winston = require('winston');
 var expressWinston = require('express-winston');
 var mongoosePaginate = require('mongoose-paginate');
-
-
+var FB = require('fb');
+var jwt = require('jsonwebtoken');
+var keys = require('../keys');
 var Promise = require('promise');
 
-
-var keys = require('../keys');
 // MODELS
 var ChallengeGroup = require('../models/challengegroup');
 var Challenge = require('../models/challenge');
@@ -17,42 +16,42 @@ var Attempt = require('../models/attempt');
 var User = require('../models/user');
 var Vote = require('../models/vote');
 var Location = require('../models/location');
-var FB = require('fb');
-
-var jwt = require('jsonwebtoken');
-  var router = express.Router();
-  router.use(function(req, res, next) {
-    console.log('----');
-    console.log(req.method + ": " + req.originalUrl);
-    console.log(req.body);
-    if(req.headers.offset === undefined)
-      req.headers.offset = 0;
-    if(req.headers.limit === undefined)
-      req.headers.limit = 20;
-    console.log('----');
 
 
-    var token = req.headers.token;
-    req.headers.auth = false;
-    req.headers.user=null;
-    req.headers.userid=null;
+var router = express.Router();
 
-    if(token)
-    {
-      var decoded = jwt.verify(token, 'secret');
-      console.log(decoded)
-      User.findById(decoded.uid, function(err, user) {
-        req.headers.user=user;
-        req.headers.userid=user._id;
-        req.headers.auth = true;
-        next();
-      });
-    }
-    else
-    {
+router.use(function(req, res, next) {
+  console.log('----');
+  console.log(req.method + ": " + req.originalUrl);
+  console.log(req.body);
+  
+  if (req.headers.offset === undefined)
+    req.headers.offset = 0;
+  
+  if (req.headers.limit === undefined)
+    req.headers.limit = 20;
+  
+  console.log('----');
+
+  var token = req.headers.token;
+  req.headers.auth = false;
+  req.headers.user = null;
+  req.headers.userid = null;
+
+  if (token) {
+    var decoded = jwt.verify(token, 'secret');
+    console.log(decoded)
+    
+    User.findById(decoded.uid, function(err, user) {
+      req.headers.user = user;
+      req.headers.userid = user._id;
+      req.headers.auth = true;
       next();
-    }
-
+    });
+  }
+  else {
+    next();
+  }
 });
 
 router.route('/').get(function(req, res) {
@@ -71,7 +70,7 @@ router.route('/').get(function(req, res) {
       });
 
       table.push([methods, r.route.path,JSON.stringify(r.keys)]);
-      console.log(methods+"\t"+r.route.path);
+      console.log(methods + "\t" + r.route.path);
     }
   });
 
