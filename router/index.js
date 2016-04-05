@@ -164,6 +164,9 @@ attemptLikeRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
+    // Get vote options
+    var options = req.body.option;
+
     // Add user to vote list
     attempt.vote_total += 1;
     
@@ -238,12 +241,12 @@ usersRoute.get(function(req, res) {
   });
 });
 
-// Route for /users/:facebook_id
-var userDetailRoute = router.route('/users/:facebook_id');
+// Route for /users/:user_id
+var userDetailRoute = router.route('/users/:user_id');
 
 // GET user details
 userDetailRoute.get(function(req, res) {
-  User.findById(req.params.facebook_id, function(err, user) {
+  User.findById(req.params.user_id, function(err, user) {
     if (err)
       res.send(err);
 
@@ -251,12 +254,12 @@ userDetailRoute.get(function(req, res) {
   });
 });
 
-// Route for /users/:facebook_id/bookmarks
+// Route for /users/:user_id/bookmarks
 var userBookmarkRoute = router.route('/users/:user_id/bookmarks');
 
 // POST a user bookmark
 userBookmarkRoute.post(function(req, res) {
-  User.findById(req.params.facebook_id, function(err, user) {
+  User.findById(req.params.user_id, function(err, user) {
     if (err)
       res.send(err);
 
@@ -286,9 +289,6 @@ router.route('/me').get(function(req,res) {
   }
   else
   res.json("oops");
-
-  
-
 });
 
 router.route('/auth/facebook').post(function(req,res) {
