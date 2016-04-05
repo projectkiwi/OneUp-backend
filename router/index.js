@@ -160,8 +160,8 @@ challengeAttemptRoute.post(function(req, res) {
 // Route for /challenges/like/:attempt_id
 var attemptLikeRoute = router.route('/challenges/like/:attempt_id');
 
-// PATCH like an attempt
-attemptLikeRoute.patch(function(req, res) {
+// POST like an attempt
+attemptLikeRoute.post(function(req, res) {
   Attempt.findById(req.params.attempt_id, function(err, attempt) {
     if (err)
       res.send(err);
@@ -240,30 +240,12 @@ usersRoute.get(function(req, res) {
   });
 });
 
-// POST a user
-usersRoute.post(function(req, res) {
-  var user = new User();
-  user.nickname = req.body.nickname;
-  user.facebook_id = req.body.facebook_id;
-
-  if (req.body.settings != undefined) {
-    user.settings = req.body.settings.split(",");
-  }
-  
-  user.save(function(err) {
-    if (err)
-      res.send(err);
-
-    res.json({ message: 'User Created!', data: user })
-  });
-});
-
-// Route for /users/:user_id
-var userDetailRoute = router.route('/users/:user_id');
+// Route for /users/:facebook_id
+var userDetailRoute = router.route('/users/:facebook_id');
 
 // GET user details
 userDetailRoute.get(function(req, res) {
-  User.findById(req.params.user_id, function(err, user) {
+  User.findById(req.params.facebook_id, function(err, user) {
     if (err)
       res.send(err);
 
@@ -271,12 +253,12 @@ userDetailRoute.get(function(req, res) {
   });
 });
 
-// Route for /users/:user_id/bookmarks
+// Route for /users/:facebook_id/bookmarks
 var userBookmarkRoute = router.route('/users/:user_id/bookmarks');
 
 // POST a user bookmark
 userBookmarkRoute.post(function(req, res) {
-  User.findById(req.params.user_id, function(err, user) {
+  User.findById(req.params.facebook_id, function(err, user) {
     if (err)
       res.send(err);
 
@@ -292,7 +274,7 @@ userBookmarkRoute.post(function(req, res) {
 
 router.route('/me').get(function(req,res) {
 
-  console.log("auth:"+req.headers.auth);
+  console.log("auth:" + req.headers.auth);
 
   var token = req.headers.token;
   if(token)
@@ -314,43 +296,45 @@ router.route('/me').get(function(req,res) {
 router.route('/auth/facebook').post(function(req,res) {
   var access_token = req.body.access_token;
   var email = req.body.email;
-
   var new_account;
+
   console.log(req.body);
-  User.findOne({ 'email': email },function (err, user) {
-                if (err || user===null)
-                  {
-                    console.log("new one");
-                    //create a new one
-                    user = new User();
-                    user.email = email;
-                    user.save(function(err) {
-                    if (err)
-                      console.log(err);
-                    });
-                    new_account = true;
-                  }
-                  else
-                  {
-                      new_account = false;
-                  }
-                  FB.setAccessToken(access_token);
-                  FB.api('me', { fields: ['id', 'name','email'] }, function (fb_res) {
-                    user.facebook_id = fb_res.id;
-                    if(fb_res.email != email)
-                      {
-                        res.json({error: "oops"});
-                        // console.log("oops emails dont match");
-                      }
-                      else 
-                    {
-                      user.save(function(err,u){
-                        var uid = u._id;
-                        var token = jwt.sign({uid: uid}, 'secret');
-                          res.json({ user: user, new_account: new_account, token: token });
-                        });
-                    }
-                  });
+  
+  User.findOne({ 'email': email }, function (err, user) {
+    if (err || user === null) {
+      console.log("new one");
+      
+      // Create a new account
+      user = new User();
+      user.email = email;
+                    
+      user.save(function(err) {
+        if (err)
+          console.log(err);
+        });
+                    
+        new_account = true;
+      }
+    else {
+      new_account = false;
+    }
+        
+    FB.setAccessToken(access_token);
+    FB.api('me', { fields: ['id', 'name','email'] }, function (fb_res) {
+    user.facebook_id = fb_res.id;
+                    
+    if (fb_res.email != email) {
+      res.json({error: "oops"});
+      // console.log("oops emails dont match");
+    }
+    else {
+      user.save(function(err,u){
+        var uid = u._id;
+        var token = jwt.sign({uid: uid}, 'secret');
+        res.json({ user: user, new_account: new_account, token: token });
+      });
+    }
+  });
               });
 
 });

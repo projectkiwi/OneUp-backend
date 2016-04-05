@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"ch",
+				"challenge_votes"
+			],
+			[
 				"Challenge",
 				"ChallengeSchema"
 			],
@@ -27,15 +31,26 @@
 			"file": "router/index.js",
 			"settings":
 			{
-				"buffer_size": 5864,
+				"buffer_size": 6721,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "models/comment.js",
+			"file": "models/location.js",
 			"settings":
 			{
-				"buffer_size": 217,
+				"buffer_size": 426,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "var mongoose = require('mongoose');\n\nvar AttemptSchema = new mongoose.Schema({\n  challenge : { type: mongoose.Schema.ObjectId, ref: 'Challenge' },\n  user: { type: mongoose.Schema.ObjectId, ref: 'User' },\n  preview_img: String,\n  full_img: String,\n  gif_img: String,\n  comments: [{ type: mongoose.Schema.ObjectId, ref: 'Comment' }],\n  votes: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],\n  vote_total: { type: Number, default: 0 }\n});\n\nmodule.exports = mongoose.model('Attempt', AttemptSchema);",
+			"file": "models/attempt.js",
+			"file_size": 500,
+			"file_write_time": 131035692776012645,
+			"settings":
+			{
+				"buffer_size": 498,
 				"line_ending": "Unix"
 			}
 		},
@@ -43,15 +58,7 @@
 			"file": "models/challenge.js",
 			"settings":
 			{
-				"buffer_size": 664,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "models/attempt.js",
-			"settings":
-			{
-				"buffer_size": 500,
+				"buffer_size": 662,
 				"line_ending": "Unix"
 			}
 		}
@@ -94,6 +101,13 @@
 	],
 	"file_history":
 	[
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/challengegroup.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/comment.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/location.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/server.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/vote.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/challenge.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/attempt.js",
 		"/C/Users/Jeremy Craven/OneDrive/Education/4th Semester/CS 252/Code/Lab 3/Makefile",
 		"/C/Users/Jeremy Craven/OneDrive/Education/4th Semester/CS 252/Code/Lab 3/command.cc",
 		"/C/Users/Jeremy Craven/OneDrive/Education/2nd Semester/CS 240/Code/Lab 1/add.h",
@@ -101,11 +115,8 @@
 		"/C/Users/Jeremy Craven/Desktop/shell.y",
 		"/C/Users/Jeremy Craven/Desktop/shell.l",
 		"/C/Users/Jeremy Craven/Desktop/read-line.c",
-		"/C/Dev/Projects/OneUp/OneUp-backend/models/attempt.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/router/index.js",
-		"/C/Dev/Projects/OneUp/OneUp-backend/models/challenge.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/TestData.txt",
-		"/C/Dev/Projects/OneUp/OneUp-backend/models/location.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/node_modules/mongo-express/config.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/node_modules/mongo-express/config.default.js",
 		"/C/Users/Jeremy Craven/.mongorc.js",
@@ -115,15 +126,11 @@
 		"/C/Dev/Projects/OneUp/OneUp-backend/node_modules/mongo-express/config.js.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/node_modules/mongo-express/test/bson.js",
 		"/C/Users/Jeremy Craven/AppData/Roaming/npm/node_modules/mongo-express/config.default.js",
-		"/C/Dev/Projects/OneUp/OneUp-backend/server.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/package.json",
 		"/C/Users/Jeremy Craven/Desktop/html5up-helios/index.html",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/user.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/.gitignore",
-		"/C/Dev/Projects/OneUp/OneUp-backend/models/vote.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/test.js",
-		"/C/Dev/Projects/OneUp/OneUp-backend/models/comment.js",
-		"/C/Dev/Projects/OneUp/OneUp-backend/models/challengegroup.js",
 		"/C/Users/Jeremy Craven/Desktop/grepsort.c",
 		"/C/Dev/Projects/OneUp/OneUp-backend/OneUp-backend.sublime-project",
 		"/C/Users/Jeremy Craven/Desktop/Hw/grepsort.c",
@@ -174,15 +181,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5864,
+						"buffer_size": 6721,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3822,
-								3822
+								529,
+								529
 							]
 						],
 						"settings":
@@ -192,7 +199,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2970.0,
+						"translation.y": 2628.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -200,19 +207,47 @@
 				},
 				{
 					"buffer": 1,
-					"file": "models/comment.js",
+					"file": "models/location.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 217,
+						"buffer_size": 426,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								56,
+								56
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "models/attempt.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 498,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								55,
+								55
 							]
 						],
 						"settings":
@@ -227,20 +262,20 @@
 					"type": "text"
 				},
 				{
-					"buffer": 2,
+					"buffer": 3,
 					"file": "models/challenge.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 664,
+						"buffer_size": 662,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								109,
+								109
 							]
 						],
 						"settings":
@@ -248,34 +283,6 @@
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "models/attempt.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 500,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
