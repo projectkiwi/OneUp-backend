@@ -5,6 +5,7 @@ var winston = require('winston');
 var expressWinston = require('express-winston');
 var mongoosePaginate = require('mongoose-paginate');
 
+var keys = require('../keys');
 // MODELS
 var ChallengeGroup = require('../models/challengegroup');
 var Challenge = require('../models/challenge');
@@ -29,6 +30,7 @@ var jwt = require('jsonwebtoken');
 
     var token = req.headers.token;
     req.headers.auth = false;
+    req.headers.user=null;
     if(token)
     {
       var decoded = jwt.verify(token, 'secret');
@@ -352,5 +354,66 @@ router.route('/auth/facebook').post(function(req,res) {
               });
 
 });
+
+
+router.route('/geo').get(function(req, ress) {
+
+
+    resp_data = ["test"];
+    FB.api('oauth/access_token', {
+        client_id: keys.fb_client_id,
+        client_secret: keys.fb_client_secret,
+        grant_type: 'client_credentials'
+    }, function(res) {
+        if (!res || res.error) {
+            console.log(!res ? 'error occurred' : res.error);
+            return;
+        }
+        console.log(res);
+        FB.setAccessToken(res.access_token);
+
+
+        FB.api('/search', 'GET', {
+                "type": "place",
+                "center": "40.425803,-86.9100602",
+                "distance": "5000",
+                "limit": "200"
+            },
+            function(response) {
+                response.data.forEach(function(l) {
+                    Location.findOne({
+                        'place_id': l.id
+                    }, function(err, location) {
+                        if (err || location == null) {
+                            //create a new one
+                            location = new Location();
+                            location.name = l.name;
+                            location.place_id = l.id;
+                            location.location.coordinates = [l.location.longitude, l.location.latitude]; //backwards on purpose
+                            location.save(function(err,location) {
+                                if (err)
+                                    console.log(err);
+                                resp_data.push(location);
+                                // console.log(location);
+                            });
+                            
+                        } else {
+                            //existing
+                            // console.log(location);
+                            resp_data.push(location);
+                        }
+                    });
+                });
+                console.log(resp_data);
+                ress.json(resp_data);
+            }
+        );
+
+    });
+
+
+
+});
+
 
 module.exports = router;
