@@ -5,6 +5,10 @@ var winston = require('winston');
 var expressWinston = require('express-winston');
 var mongoosePaginate = require('mongoose-paginate');
 
+
+var Promise = require('promise');
+
+
 var keys = require('../keys');
 // MODELS
 var ChallengeGroup = require('../models/challengegroup');
@@ -342,10 +346,9 @@ router.route('/auth/facebook').post(function(req,res) {
 });
 
 
-router.route('/geo').get(function(req, ress) {
+router.route('/geo').get(function(req, req_response) {
 
-
-    var resp_data = ["test"];    
+   
     FB.api('oauth/access_token', {
         client_id: keys.fb_client_id,
         client_secret: keys.fb_client_secret,
@@ -364,7 +367,12 @@ router.route('/geo').get(function(req, ress) {
                 "limit": "200"
             },
             function(response) {
+              var resp_data = ["test"]; 
+
+              var promises = [];
+              
                 response.data.forEach(function(l) {
+                  var promise = new Promise(function (resolve, reject) {
                     Location.findOne({
                         'place_id': l.id
                     }, function(err, location) {
@@ -375,22 +383,30 @@ router.route('/geo').get(function(req, ress) {
                             location.place_id = l.id;
                             location.location.coordinates = [l.location.longitude, l.location.latitude]; //backwards on purpose
                             location.save(function(err,location) {
-                                // resp_data.push(location);
-                                // console.log(location);
-                            });
-                            
+                            }); 
                         }
                         else {
-                            //existing
-                            console.log("yay");
-                            //console.log(location);
                             resp_data.push(location);
-                            console.log(resp_data);
+                            console.log(resp_data.length);//this prints 1,2,3, etc
                         }
+
+                        resolve(location);
                     });
+
+                      });
+                  promises.push(promise);
                 });
-                console.log(resp_data);
-                ress.json(resp_data);
+                
+
+                Promise.all(promises)
+                .then(function (res) {
+                  req_response.json(res);
+                  //console.log("resulved"+res.length);
+                })
+              
+                //at this point, resp_data only contains ['test']
+                // console.log(resp_data);
+                // req_response.json(resp_data);
             }
         );
     });
