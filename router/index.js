@@ -166,10 +166,14 @@ attemptLikeRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    // Get vote options
-    var options = req.body.option;
+    // Check if user already voted
+
+    // If not voted, add to list and increase vote count
+    // If already voted, remove from list and decrease vote count
 
     // Add user to vote list
+    //attempt.votes.push(req.header.)
+
     attempt.vote_total += 1;
     
     Challenge.findById(attempt.challenge, function(err, challenge) {
@@ -276,12 +280,11 @@ userBookmarkRoute.post(function(req, res) {
 });
 
 router.route('/me').get(function(req,res) {
-
   console.log("auth:" + req.headers.auth);
 
   var token = req.headers.token;
-  if(token)
-  {
+
+  if (token) {
     var decoded = jwt.verify(token, 'secret');
     console.log(decoded)
 
@@ -289,8 +292,9 @@ router.route('/me').get(function(req,res) {
       res.json(user);
     });
   }
-  else
-  res.json("oops");
+  else {
+    res.json("oops");
+  }
 });
 
 router.route('/auth/facebook').post(function(req,res) {
@@ -311,38 +315,35 @@ router.route('/auth/facebook').post(function(req,res) {
       user.save(function(err) {
         if (err)
           console.log(err);
-        });
+      });
                     
-        new_account = true;
-      }
+      new_account = true;
+    }
     else {
       new_account = false;
     }
         
     FB.setAccessToken(access_token);
     FB.api('me', { fields: ['id', 'name','email'] }, function (fb_res) {
-    user.facebook_id = fb_res.id;
+      user.facebook_id = fb_res.id;
                     
-    if (fb_res.email != email) {
-      res.json({error: "oops"});
-      // console.log("oops emails dont match");
-    }
-    else {
-      user.save(function(err,u){
-        var uid = u._id;
-        var token = jwt.sign({uid: uid}, 'secret');
-        res.json({ user: user, new_account: new_account, token: token });
-      });
-    }
+      if (fb_res.email != email) {
+        res.json({error: "oops"});
+        // console.log("oops emails dont match");
+      }
+      else {
+        user.save(function(err, u){
+          var uid = u._id;
+          var token = jwt.sign({uid: uid}, 'secret');
+          res.json({ user: user, new_account: new_account, token: token });
+        });
+      }
+    });
   });
-              });
-
 });
 
 
 router.route('/geo').get(function(req, ress) {
-
-
     resp_data = ["test"];
     FB.api('oauth/access_token', {
         client_id: keys.fb_client_id,
@@ -394,10 +395,6 @@ router.route('/geo').get(function(req, ress) {
         );
 
     });
-
-
-
 });
-
 
 module.exports = router;
