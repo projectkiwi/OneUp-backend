@@ -5,6 +5,10 @@ var winston = require('winston');
 var expressWinston = require('express-winston');
 var mongoosePaginate = require('mongoose-paginate');
 
+
+var Promise = require('promise');
+
+
 var keys = require('../keys');
 // MODELS
 var ChallengeGroup = require('../models/challengegroup');
@@ -31,12 +35,15 @@ var jwt = require('jsonwebtoken');
     var token = req.headers.token;
     req.headers.auth = false;
     req.headers.user=null;
+    req.headers.userid=null;
+
     if(token)
     {
       var decoded = jwt.verify(token, 'secret');
       console.log(decoded)
       User.findById(decoded.uid, function(err, user) {
         req.headers.user=user;
+        req.headers.userid=user._id;
         req.headers.auth = true;
         next();
       });
@@ -339,12 +346,29 @@ router.route('/auth/facebook').post(function(req,res) {
         });
       }
     });
+
+    if (fb_res.email != email) {
+      res.json({error: "oops"});
+      // console.log("oops emails dont match");
+    }
+    else {
+      user.save(function(err,u){
+        var token = jwt.sign({uid: u._id}, 'secret');
+        res.json({ user: user, new_account: new_account, token: token });
+      });
+    }
   });
 });
 
 
+
 router.route('/geo').get(function(req, ress) {
     resp_data = ["test"];
+
+router.route('/geo').get(function(req, req_response) {
+
+   
+
     FB.api('oauth/access_token', {
         client_id: keys.fb_client_id,
         client_secret: keys.fb_client_secret,
@@ -356,8 +380,6 @@ router.route('/geo').get(function(req, ress) {
         }
         console.log(res);
         FB.setAccessToken(res.access_token);
-
-
         FB.api('/search', 'GET', {
                 "type": "place",
                 "center": "40.425803,-86.9100602",
@@ -365,7 +387,12 @@ router.route('/geo').get(function(req, ress) {
                 "limit": "200"
             },
             function(response) {
+              var resp_data = ["test"]; 
+
+              var promises = [];
+              
                 response.data.forEach(function(l) {
+                  var promise = new Promise(function (resolve, reject) {
                     Location.findOne({
                         'place_id': l.id
                     }, function(err, location) {
@@ -376,24 +403,32 @@ router.route('/geo').get(function(req, ress) {
                             location.place_id = l.id;
                             location.location.coordinates = [l.location.longitude, l.location.latitude]; //backwards on purpose
                             location.save(function(err,location) {
-                                if (err)
-                                    console.log(err);
-                                resp_data.push(location);
-                                // console.log(location);
-                            });
-                            
-                        } else {
-                            //existing
-                            // console.log(location);
-                            resp_data.push(location);
+                            }); 
                         }
+                        else {
+                            resp_data.push(location);
+                            console.log(resp_data.length);//this prints 1,2,3, etc
+                        }
+
+                        resolve(location);
                     });
+
+                      });
+                  promises.push(promise);
                 });
-                console.log(resp_data);
-                ress.json(resp_data);
+                
+
+                Promise.all(promises)
+                .then(function (res) {
+                  req_response.json(res);
+                  //console.log("resulved"+res.length);
+                })
+              
+                //at this point, resp_data only contains ['test']
+                // console.log(resp_data);
+                // req_response.json(resp_data);
             }
         );
-
     });
 });
 
