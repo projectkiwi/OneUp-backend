@@ -39,6 +39,10 @@ var jwt = require('jsonwebtoken');
         next();
       });
     }
+    else
+    {
+      next();
+    }
 
 });
 
