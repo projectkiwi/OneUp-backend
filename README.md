@@ -12,8 +12,8 @@ The following **required** functionality is completed:
 
 #### User Story 3
 
-- [ ] Create API endpoint to fetch popular challenges - Jeremy
-- [ ] Express an opinion on past records by liking - Nicky
+- [X] Create API endpoint to fetch popular challenges - Jeremy
+- [ ] Express an opinion on past records by liking - Jeremy
 - [ ] Express an opinion on past records by commenting - Jeremy
 
 #### User Story 4
