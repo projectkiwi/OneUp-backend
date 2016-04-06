@@ -13,7 +13,7 @@ The following **required** functionality is completed:
 #### User Story 3
 
 - [X] Create API endpoint to fetch popular challenges - Jeremy
-- [ ] Express an opinion on past records by liking - Jeremy
+- [X] Express an opinion on past records by liking - Jeremy
 - [ ] Express an opinion on past records by commenting - Jeremy
 
 #### User Story 4
@@ -37,7 +37,7 @@ The following **required** functionality is completed:
 
 #### User Story 9
 
-- [ ] Build backend for bookmarks
+- [X] Build backend for bookmarks
 
 #### User Story 10
 
