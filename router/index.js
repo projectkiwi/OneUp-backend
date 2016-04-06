@@ -97,6 +97,20 @@ challengesRoute.get(function(req, res) {
     if (err)
       res.send(err);
 
+    for (c of challenges.docs) {
+      // Check if user has liked
+      console.log(c.name);
+
+      // If user has liked challenge set boolean
+
+      // Else set to false
+
+      // Find attempts user has liked and add to an array
+
+      // Use JSON.stringify()
+      // Store liked information with user model
+    }
+
     res.json(challenges);
   });
 });
@@ -104,11 +118,6 @@ challengesRoute.get(function(req, res) {
 // POST create a new challenge
 challengesRoute.post(function(req, res) {
   console.log(req.body);
-
-  var location = new Location();
-  location.name = "Purdue";
-  //location.loc = [req.body.latitude, req.body.longitude];
-  location.loc = [40.4237, -86.9212];
 
   var challenge = new Challenge();
   challenge.name = req.body.name;
@@ -150,6 +159,10 @@ challengeAttemptRoute.post(function(req, res) {
 
     var attempt = new Attempt();
   
+    if (req.headers.auth == true) {
+      attempt.user = req.headers.userid;
+    }
+
     attempt.preview_img = "https://placeholdit.imgix.net/~text?txtsize=33&txt=&w=350&h=150"; 
     attempt.gif_img = "https://media.giphy.com/media/xT9DPO1KTBOzoTVr8Y/giphy.gif";
     attempt.challenge =  req.params.challenge_id;
@@ -173,13 +186,6 @@ attemptLikeRoute.post(function(req, res) {
       res.send(err);
 
     var increment = 0;
-
-    // Check if user already voted
-
-    // If not voted, add to list and increase vote count
-    // If already voted, remove from list and decrease vote count
-
-    // Add user to vote list
     var index = attempt.likes.indexOf(req.headers.userid);
 
     if (index == -1) {
@@ -323,7 +329,7 @@ router.route('/auth/facebook').post(function(req,res) {
   
   User.findOne({ 'email': email }, function (err, user) {
     if (err || user === null) {
-      console.log("new one");
+      console.log("Create new account");
       
       // Create a new account
       user = new User();
@@ -341,7 +347,8 @@ router.route('/auth/facebook').post(function(req,res) {
     }
         
     FB.setAccessToken(access_token);
-    FB.api('me', { fields: ['id', 'name','email'] }, function (fb_res) {
+    
+    FB.api('me', { fields: ['id', 'name', 'email'] }, function (fb_res) {
       user.facebook_id = fb_res.id;
                     
       if (fb_res.email != email) {
@@ -349,21 +356,21 @@ router.route('/auth/facebook').post(function(req,res) {
         // console.log("oops emails dont match");
       }
       else {
-        user.save(function(err, u){
+        user.save(function(err, u) {
           var uid = u._id;
-          var token = jwt.sign({uid: uid}, 'secret');
+          var token = jwt.sign({ uid: uid }, 'secret');
           res.json({ user: user, new_account: new_account, token: token });
         });
       }
     });
 
     if (fb_res.email != email) {
-      res.json({error: "oops"});
+      res.json({ error: "oops" });
       // console.log("oops emails dont match");
     }
     else {
-      user.save(function(err,u){
-        var token = jwt.sign({uid: u._id}, 'secret');
+      user.save(function(err, u) {
+        var token = jwt.sign({ uid: u._id }, 'secret');
         res.json({ user: user, new_account: new_account, token: token });
       });
     }
@@ -386,6 +393,7 @@ router.route('/geo').get(function(req, req_response) {
             return;
         }
         console.log(res);
+
         FB.setAccessToken(res.access_token);
         FB.api('/search', 'GET', {
                 "type": "place",
