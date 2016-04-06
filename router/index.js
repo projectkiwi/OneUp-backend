@@ -175,10 +175,9 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
 
     var attempt = new Attempt();
   
-    if (req.headers.auth == true) {
-      attempt.user = req.headers.userid;
-      attempt.user.records.push(attempt);
-    }
+    attempt.user = req.headers.userid;
+    attempt.user.records.push(attempt);
+    challenge.record_holders.push(req.headers.userid);
     
     var opts = {
       width: 300
