@@ -383,14 +383,14 @@ router.route('/geo').get(function(req, req_response) {
                             location.place_id = l.id;
                             location.location.coordinates = [l.location.longitude, l.location.latitude]; //backwards on purpose
                             location.save(function(err,location) {
+                              resolve(location);
                             }); 
                         }
                         else {
-                            resp_data.push(location);
-                            console.log(resp_data.length);//this prints 1,2,3, etc
+                            resolve(location);
                         }
 
-                        resolve(location);
+                        
                     });
 
                       });
