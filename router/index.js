@@ -9,6 +9,7 @@ var jwt = require('jsonwebtoken');
 var keys = require('../keys');
 var Promise = require('promise');
 
+var gify = require('gify');
 // MODELS
 var ChallengeGroup = require('../models/challengegroup');
 var Challenge = require('../models/challenge');
@@ -17,7 +18,7 @@ var User = require('../models/user');
 var Vote = require('../models/vote');
 var Location = require('../models/location');
 
-
+var multer  = require('multer');
 var router = express.Router();
 
 router.use(function(req, res, next) {
@@ -46,6 +47,7 @@ router.use(function(req, res, next) {
       req.headers.user = user;
       req.headers.userid = user._id;
       req.headers.auth = true;
+      console.log("authenticated user! ("+user._id+")");
       next();
     });
   }
@@ -152,19 +154,43 @@ challengeDetailRoute.get(function(req, res) {
 var challengeAttemptRoute = router.route('/challenges/:challenge_id/attempts');
 
 // POST submit a challenge attempt
-challengeAttemptRoute.post(function(req, res) {
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/challenge_attempts')
+  },
+  filename: function (req, file, cb) {
+    cb(null, req.params.challenge_id + '_' + req.headers.userid + '_' + Date.now()+'_orig.mp4')
+  }
+})
+
+var upload = multer({ storage: storage })
+challengeAttemptRoute.post(upload.single('video'), function(req, res) {
   Challenge.findById(req.params.challenge_id, function(err, challenge) {
     if (err)
       res.send(err);
+
+    console.log(req.file);
 
     var attempt = new Attempt();
   
     if (req.headers.auth == true) {
       attempt.user = req.headers.userid;
     }
+    var opts = {
+  width: 300
+};
+  
 
-    attempt.preview_img = "https://placeholdit.imgix.net/~text?txtsize=33&txt=&w=350&h=150"; 
-    attempt.gif_img = "https://media.giphy.com/media/xT9DPO1KTBOzoTVr8Y/giphy.gif";
+    var f = req.file.path.substr(0, req.file.path.lastIndexOf('_orig'));
+    var gifpath = f+".gif";
+    console.log("TEST: "+f);
+    gify(req.file.path, gifpath, opts, function(err){
+      if (err) throw err;
+    });
+
+    attempt.orig_video = req.file.path;
+    attempt.gif_img = gifpath;
+    attempt.description = req.body.description;
     attempt.challenge =  req.params.challenge_id;
     attempt.save();
 

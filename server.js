@@ -23,6 +23,7 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 })); 
 
+app.use('/uploads', express.static('uploads'));
 // Register all our routes
 app.use('/', require('./router'));
 
