@@ -260,6 +260,11 @@ localPopularChallengesRoute.get(function(req, res) {
 // Route for /users
 var usersRoute = router.route('/users');
 
+// POST a user
+usersRoute.post(function(req, res) {
+  
+});
+
 // GET all users
 usersRoute.get(function(req, res) {
   User.find().exec(function(err, users) {
@@ -270,12 +275,12 @@ usersRoute.get(function(req, res) {
   });
 });
 
-// Route for /users/:user_id
-var userDetailRoute = router.route('/users/:user_id');
+// Route for /user
+var userDetailRoute = router.route('/user');
 
 // GET user details
 userDetailRoute.get(function(req, res) {
-  User.findById(req.params.user_id, function(err, user) {
+  User.findById(req.headers.userid, function(err, user) {
     if (err)
       res.send(err);
 
@@ -283,12 +288,12 @@ userDetailRoute.get(function(req, res) {
   });
 });
 
-// Route for /users/:user_id/bookmarks
-var userBookmarkRoute = router.route('/users/:user_id/bookmarks');
+// Route for /users/bookmarks
+var userBookmarkRoute = router.route('/users/bookmarks');
 
 // POST a user bookmark
 userBookmarkRoute.post(function(req, res) {
-  User.findById(req.params.user_id, function(err, user) {
+  User.findById(req.headers.userid, function(err, user) {
     if (err)
       res.send(err);
 
