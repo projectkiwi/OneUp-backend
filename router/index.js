@@ -7,9 +7,9 @@ var mongoosePaginate = require('mongoose-paginate');
 var FB = require('fb');
 var jwt = require('jsonwebtoken');
 var keys = require('../keys');
-var Promise = require('promise');
 var gify = require('gify');
 var multer  = require('multer');
+var Promise = require('promise');
 
 // MODELS
 var ChallengeGroup = require('../models/challengegroup');
@@ -36,9 +36,9 @@ router.use(function(req, res, next) {
   console.log('----');
 
   var token = req.headers.token;
-  req.headers.auth = false;
-  req.headers.user = null;
-  req.headers.userid = null;
+  //req.headers.auth = false;
+  //req.headers.user = null;
+  //req.headers.userid = null;
 
   if (token) {
     var decoded = jwt.verify(token, 'secret');
@@ -100,19 +100,18 @@ challengesRoute.get(function(req, res) {
     if (err)
       res.send(err);
 
-    for (c of challenges.docs) {
-      // Check if user has liked
-      console.log(c.name);
+    User.findById(req.headers.userid, function(err, user) {
+      for (c of challenges.docs) {
+        if (user.liked_challenges.indexOf(c._id) != -1) {
+          c.user_liked = true;
+        }
+        else {
+          c.user_liked = false;
+        }
 
-      // If user has liked challenge set boolean
-
-      // Else set to false
-
-      // Find attempts user has liked and add to an array
-
-      // Use JSON.stringify()
-      // Store liked information with user model
-    }
+        c.save();
+      }
+    });
 
     res.json(challenges);
   });
@@ -124,7 +123,6 @@ challengesRoute.post(function(req, res) {
 
   var challenge = new Challenge();
   challenge.name = req.body.name;
-  challenge.location  = location;
   challenge.description = req.body.description;
   challenge.pattern = req.body.pattern;
   challenge.categories = req.body.categories;
@@ -173,36 +171,48 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
 
     console.log(req.file);
 
-    var attempt = new Attempt();
-  
-    attempt.user = req.headers.userid;
-    attempt.user.records.push(attempt);
-    challenge.record_holders.push(req.headers.userid);
-    
-    var opts = {
-      width: 300
-    };
+    User.findById(req.headers.userid, function(err, user) {
+      user.records.push(challenge);
+      user.save(function(err) {
+        if (err)
+          res.send(err);
+      });
 
-    var f = req.file.path.substr(0, req.file.path.lastIndexOf('_orig'));
-    var gifpath = f + ".gif";
-    console.log("TEST: " + f);
+      var attempt = new Attempt();
+
+      var opts = {
+        width: 300
+      };
+
+      var f = req.file.path.substr(0, req.file.path.lastIndexOf('_orig'));
+      var gifpath = f + ".gif";
+      console.log("TEST: " + f);
     
-    gify(req.file.path, gifpath, opts, function(err) {
-      if (err) 
-        throw err;
+      gify(req.file.path, gifpath, opts, function(err) {
+        if (err) 
+          throw err;
+      });
+      
+      attempt.orig_video = req.file.path;
+      attempt.gif_img = gifpath;
+      attempt.user = user;
+      attempt.description = req.body.description;
+      attempt.challenge =  req.params.challenge_id;
+      attempt.save(function(err) {
+        if (err)
+          res.send(err);
+      });
+
+      challenge.updated_on = Date.now();
+      challenge.attempts.push(attempt);
+      challenge.record_holders.push(user);
+      challenge.save(function(err) {
+        if (err)
+          res.send(err);
+      });
+
+      res.json({ message: 'Attempt Created!', data: attempt });
     });
-
-    attempt.orig_video = req.file.path;
-    attempt.gif_img = gifpath;
-    attempt.description = req.body.description;
-    attempt.challenge =  req.params.challenge_id;
-    attempt.save();
-
-    challenge.updated_on = Date.now();
-    challenge.attempts.push(attempt);
-    challenge.save();
-
-    res.json({ message: 'Attempt Created!', data: attempt });
   });
 });
 
@@ -223,7 +233,7 @@ attemptLikeRoute.post(function(req, res) {
       increment = 1;
     }
     else {
-      attempt.likes = attempt.likes.splice(index, 1);
+      attempt.likes.splice(index, 1);
       increment = -1;
     }
 
@@ -233,11 +243,29 @@ attemptLikeRoute.post(function(req, res) {
       if (err)
         res.send(err);
 
+      User.findById(req.headers.userid, function(err, user) {
+        if (user.liked_challenges.indexOf(challenge._id) == -1) {
+          user.liked_challenges.push(challenge);
+        }
+
+        user.save(function(err) {
+          if (err)
+            res.send(err);
+        });
+      });
+
       challenge.challenge_likes += increment;
-      challenge.save();
+      challenge.save(function(err) {
+        if (err)
+          res.send(err);
+      });
     });
 
-    attempt.save();
+    attempt.save(function(err) {
+      if (err) {
+        res.send(err);
+      }
+    });
 
     res.json({ message: 'Like Recorded!' });
   });
@@ -292,7 +320,14 @@ var usersRoute = router.route('/users');
 
 // POST a user
 usersRoute.post(function(req, res) {
-  
+  var user = new User();
+
+  user.save(function(err) {
+    if (err)
+      res.send(err);
+  });
+
+  res.json(user);
 });
 
 // GET all users
@@ -319,7 +354,7 @@ userDetailRoute.get(function(req, res) {
 });
 
 // Route for /users/bookmarks
-var userBookmarkRoute = router.route('/users/bookmarks');
+var userBookmarkRoute = router.route('/users/bookmarks/:challenge_id');
 
 // POST a user bookmark
 userBookmarkRoute.post(function(req, res) {
@@ -327,11 +362,16 @@ userBookmarkRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    Challenge.findById(req.body.challenge_id, function(err, challenge) {
+    Challenge.findById(req.params.challenge_id, function(err, challenge) {
       if (err) 
         res.send(err);
 
-      user.bookmarks.push(challenge);
+      user.bookmarks.push(challenge._id);
+      user.save(function(err) {
+        if (err)
+          res.send(err);
+      });
+
       res.json({ message: 'Bookmark Added!', data: challenge });
     });
   });

@@ -6,7 +6,8 @@ var UserSchema   = new mongoose.Schema({
   email: String,
   settings: [String],
   bookmarks: [{ type: mongoose.Schema.ObjectId, ref: 'Challenge' }],
-  records: [{ type: mongoose.Schema.ObjectId, ref: 'Challenge'}]
+  records: [{ type: mongoose.Schema.ObjectId, ref: 'Challenge'}],
+  liked_challenges: [{ type: mongoose.Schema.ObjectId, ref: 'Challenge'}]
 });
 
 module.exports = mongoose.model('User', UserSchema);
