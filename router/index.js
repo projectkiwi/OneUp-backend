@@ -8,8 +8,9 @@ var FB = require('fb');
 var jwt = require('jsonwebtoken');
 var keys = require('../keys');
 var Promise = require('promise');
-
 var gify = require('gify');
+var multer  = require('multer');
+
 // MODELS
 var ChallengeGroup = require('../models/challengegroup');
 var Challenge = require('../models/challenge');
@@ -18,7 +19,7 @@ var User = require('../models/user');
 var Vote = require('../models/vote');
 var Location = require('../models/location');
 
-var multer  = require('multer');
+
 var router = express.Router();
 
 router.use(function(req, res, next) {
@@ -47,7 +48,7 @@ router.use(function(req, res, next) {
       req.headers.user = user;
       req.headers.userid = user._id;
       req.headers.auth = true;
-      console.log("authenticated user! ("+user._id+")");
+      console.log("Authenticated user! ("+user._id+")");
       next();
     });
   }
@@ -159,11 +160,12 @@ var storage = multer.diskStorage({
     cb(null, 'uploads/challenge_attempts')
   },
   filename: function (req, file, cb) {
-    cb(null, req.params.challenge_id + '_' + req.headers.userid + '_' + Date.now()+'_orig.mp4')
+    cb(null, req.params.challenge_id + '_' + req.headers.userid + '_' + Date.now() + '_orig.mp4')
   }
 })
 
-var upload = multer({ storage: storage })
+var upload = multer({ storage: storage });
+
 challengeAttemptRoute.post(upload.single('video'), function(req, res) {
   Challenge.findById(req.params.challenge_id, function(err, challenge) {
     if (err)
@@ -175,17 +177,20 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
   
     if (req.headers.auth == true) {
       attempt.user = req.headers.userid;
+      attempt.user.records.push(attempt);
     }
+    
     var opts = {
-  width: 300
-};
-  
+      width: 300
+    };
 
     var f = req.file.path.substr(0, req.file.path.lastIndexOf('_orig'));
-    var gifpath = f+".gif";
-    console.log("TEST: "+f);
-    gify(req.file.path, gifpath, opts, function(err){
-      if (err) throw err;
+    var gifpath = f + ".gif";
+    console.log("TEST: " + f);
+    
+    gify(req.file.path, gifpath, opts, function(err) {
+      if (err) 
+        throw err;
     });
 
     attempt.orig_video = req.file.path;
