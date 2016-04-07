@@ -100,7 +100,12 @@ challengesRoute.get(function(req, res) {
     if (err)
       res.send(err);
 
+    var liked = false;
+
     User.findById(req.headers.userid, function(err, user) {
+      if (err)
+        res.send(err);
+
       for (c of challenges.docs) {
         if (user.liked_challenges.indexOf(c._id) != -1) {
           c.user_liked = true;
@@ -244,7 +249,7 @@ attemptLikeRoute.post(function(req, res) {
         res.send(err);
 
       User.findById(req.headers.userid, function(err, user) {
-        if (user.liked_challenges.indexOf(challenge._id) == -1) {
+        if (user.liked_challenges.indexOf(challenge._id) == -1 && user != null) {
           user.liked_challenges.push(challenge);
         }
 
