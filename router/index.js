@@ -36,7 +36,7 @@ router.use(function(req, res, next) {
   console.log('----');
 
   var token = req.headers.token;
-  //req.headers.auth = false;
+  req.headers.auth = false;
   //req.headers.user = null;
   //req.headers.userid = null;
 
@@ -87,7 +87,7 @@ var challengesRoute = router.route('/challenges');
 // GET global challenges
 challengesRoute.get(function(req, res) {
   var options = {
-    populate: 'attempts',
+    populate: 'attempts record_holders',
     sort: { 
       challenge_likes: -1,
       updated_on: -1
@@ -102,19 +102,22 @@ challengesRoute.get(function(req, res) {
 
     var liked = false;
 
+    // Fix user already found
     User.findById(req.headers.userid, function(err, user) {
       if (err)
         res.send(err);
 
-      for (c of challenges.docs) {
-        if (user.liked_challenges.indexOf(c._id) != -1) {
-          c.user_liked = true;
-        }
-        else {
-          c.user_liked = false;
-        }
+      if (user != null) {
+        for (c of challenges.docs) {
+          if (user.liked_challenges.indexOf(c._id) != -1) {
+            c.user_liked = true;
+          }
+          else {
+            c.user_liked = false;
+          }
 
-        c.save();
+          c.save();
+        }
       }
     });
 
@@ -124,8 +127,6 @@ challengesRoute.get(function(req, res) {
 
 // POST create a new challenge
 challengesRoute.post(function(req, res) {
-  console.log(req.body);
-
   var challenge = new Challenge();
   challenge.name = req.body.name;
   challenge.description = req.body.description;
@@ -151,7 +152,7 @@ challengeDetailRoute.get(function(req, res) {
       res.send(err);
 
     res.json(challenge);
-  }).populate('attempts');
+  }).populate('attempts record_holders');
 });
 
 // Route for /challenges/:challenge_id/attempts
@@ -175,48 +176,55 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
       res.send(err);
 
     console.log(req.file);
+    console.log(challenge);
 
+    // Fix user already found
     User.findById(req.headers.userid, function(err, user) {
-      user.records.push(challenge);
-      user.save(function(err) {
-        if (err)
-          res.send(err);
-      });
+      if (user != null) {
+        user.records.push(challenge);
+        user.save(function(err) {
+          if (err)
+            res.send(err);
+        });
 
-      var attempt = new Attempt();
+        var attempt = new Attempt();
 
-      var opts = {
-        width: 300
-      };
+        var opts = {
+          width: 300
+        };
 
-      var f = req.file.path.substr(0, req.file.path.lastIndexOf('_orig'));
-      var gifpath = f + ".gif";
-      console.log("TEST: " + f);
-    
-      gify(req.file.path, gifpath, opts, function(err) {
-        if (err) 
-          throw err;
-      });
+        var f = req.file.path.substr(0, req.file.path.lastIndexOf('_orig'));
+        var gifpath = f + ".gif";
+        console.log("TEST: " + f);
       
-      attempt.orig_video = req.file.path;
-      attempt.gif_img = gifpath;
-      attempt.user = user;
-      attempt.description = req.body.description;
-      attempt.challenge =  req.params.challenge_id;
-      attempt.save(function(err) {
-        if (err)
-          res.send(err);
-      });
+        gify(req.file.path, gifpath, opts, function(err) {
+          if (err) 
+            throw err;
+        });
+        
+        attempt.orig_video = req.file.path;
+        attempt.gif_img = gifpath;
+        attempt.user = user;
+        attempt.description = req.body.description;
+        attempt.challenge =  req.params.challenge_id;
+        attempt.save(function(err) {
+          if (err)
+            res.send(err);
+        });
 
-      challenge.updated_on = Date.now();
-      challenge.attempts.push(attempt);
-      challenge.record_holders.push(user);
-      challenge.save(function(err) {
-        if (err)
-          res.send(err);
-      });
+        challenge.updated_on = Date.now();
+        challenge.attempts.push(attempt);
+        challenge.record_holders.push(user);
+        challenge.save(function(err) {
+          if (err)
+            res.send(err);
+        });
 
-      res.json({ message: 'Attempt Created!', data: attempt });
+        res.json({ message: 'Attempt Created!', data: attempt });
+      }
+      else {
+        res.json({ message: 'Invalid User' });
+      }   
     });
   });
 });
@@ -230,36 +238,23 @@ attemptLikeRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    var increment = 0;
-    var index = attempt.likes.indexOf(req.headers.userid);
-
-    if (index == -1) {
-      attempt.likes.push(req.headers.userid);
-      increment = 1;
-    }
-    else {
-      attempt.likes.splice(index, 1);
-      increment = -1;
-    }
-
-    attempt.like_total += increment;
+    attempt.likes.push(req.headers.userid);
+    attempt.like_total += 1;
     
     Challenge.findById(attempt.challenge, function(err, challenge) {
       if (err)
         res.send(err);
 
+      // Fix User already found
       User.findById(req.headers.userid, function(err, user) {
-        if (user.liked_challenges.indexOf(challenge._id) == -1 && user != null) {
-          user.liked_challenges.push(challenge);
-        }
-
+        user.liked_challenges.push(challenge);
         user.save(function(err) {
           if (err)
             res.send(err);
         });
       });
 
-      challenge.challenge_likes += increment;
+      challenge.challenge_likes += 1;
       challenge.save(function(err) {
         if (err)
           res.send(err);
@@ -273,6 +268,52 @@ attemptLikeRoute.post(function(req, res) {
     });
 
     res.json({ message: 'Like Recorded!' });
+  });
+});
+
+// Route for /challenges/unlike/:attempt_id
+var attemptUnlikeRoute = router.route('/challenges/unlike/:attempt_id');
+
+// POST unlike an attempt
+attemptUnlikeRoute.post(function(req, res) {
+  Attempt.findById(req.params.attempt_id, function(err, attempt) {
+    if (err)
+      res.send(err);
+
+    var index = attempt.likes.indexOf(req.headers.userid);
+    
+    attempt.likes.splice(index, 1);
+    attempt.like_total -= 1;
+    
+    Challenge.findById(attempt.challenge, function(err, challenge) {
+      if (err)
+        res.send(err);
+
+      // Fix User already found
+      User.findById(req.headers.userid, function(err, user) {
+        var index = user.liked_challenges.indexOf(challenge._id);
+
+        user.liked_challenges.splice(index, 1);
+        user.save(function(err) {
+          if (err)
+            res.send(err);
+        });
+      });
+
+      challenge.challenge_likes -= 1;
+      challenge.save(function(err) {
+        if (err)
+          res.send(err);
+      });
+    });
+
+    attempt.save(function(err) {
+      if (err) {
+        res.send(err);
+      }
+    });
+
+    res.json({ message: 'Unlike Recorded!' });
   });
 });
 
@@ -363,6 +404,7 @@ var userBookmarkRoute = router.route('/users/bookmarks/:challenge_id');
 
 // POST a user bookmark
 userBookmarkRoute.post(function(req, res) {
+  // Fix user already found
   User.findById(req.headers.userid, function(err, user) {
     if (err)
       res.send(err);
