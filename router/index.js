@@ -387,11 +387,11 @@ usersRoute.get(function(req, res) {
 });
 
 // Route for /user
-var userDetailRoute = router.route('/user');
+var userDetailRoute = router.route('/user/:user_id');
 
 // GET user details
 userDetailRoute.get(function(req, res) {
-  User.findById(req.headers.userid, function(err, user) {
+  User.findById(req.params.user_id, function(err, user) {
     if (err)
       res.send(err);
 
