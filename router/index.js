@@ -167,7 +167,7 @@ var storage = multer.diskStorage({
     cb(null, 'uploads/challenge_attempts')
   },
   filename: function (req, file, cb) {
-    cb(null, req.params.challenge_id + '_' + req.headers.userid + '_' + Date.now() + '_orig.mp4')
+    cb(null, req.params.challenge_id + '_' + req.userid + '_' + Date.now() + '_orig.mp4')
   }
 })
 
@@ -178,10 +178,8 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
     if (err)
       res.send(err);
 
-    console.log(req.headers.userid);
-
     // Fix user already found
-    User.findById(req.headers.userid, function(err, user) {
+    User.findById(req.userid, function(err, user) {
       if (user != null) {
         user.records.push(challenge);
         user.save(function(err) {
@@ -432,7 +430,7 @@ var userBookmarkRoute = router.route('/users/unbookmark/:challenge_id');
 // POST a user unbookmark
 userBookmarkRoute.post(function(req, res) {
   // Fix user already found
-  User.findById(req.headers.userid, function(err, user) {
+  User.findById(req.userid, function(err, user) {
     if (err)
       res.send(err);
 
