@@ -36,13 +36,22 @@ router.use(function(req, res, next) {
     req.headers.limit = 20;
 
 
-  var token = req.headers.token;
+  var header_token = req.headers.token;
+  var body_token = req.body.token;
   req.userid = null;
-  if (token) {
-    var decoded = jwt.verify(token, 'secret'); 
+  if (header_token) {
+    var decoded = jwt.verify(header_token, 'secret'); 
     //todo: error nicely if bad token;
     req.userid = decoded.uid;
-    console.log("Authenticated user! ("+req.userid+")");
+    console.log("(header) Authenticated user! ("+req.userid+")");
+    console.log('----');
+    next();
+  }
+  else if (body_token) {
+    var decoded = jwt.verify(body_token, 'secret'); 
+    //todo: error nicely if bad token;
+    req.userid = decoded.uid;
+    console.log("(body) Authenticated user! ("+req.userid+")");
     console.log('----');
     next();
   }
