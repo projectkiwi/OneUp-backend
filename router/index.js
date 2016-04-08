@@ -442,6 +442,31 @@ router.route('/me').get(function(req,res) {
   }
 });
 
+router.route('/me').put(function(req,res) {
+  
+  if (req.userid!=null) {
+    User.findById(req.userid, function(err, user) {
+      console.log
+      if(req.body.username!=undefined)
+      {
+        //todo: check for uniqueness on username
+        console.log("yo");
+        user.username = req.body.username;
+        user.save(function(err, user) {
+          res.json(user);
+        });
+      }
+      else
+      {
+        res.json(user);
+      }
+    });
+  }
+  else {
+    res.json("oops");
+  }
+});
+
 router.route('/auth/facebook').post(function(req,res) {
   var access_token = req.body.access_token;
   var email = req.body.email;
