@@ -24,35 +24,39 @@ var router = express.Router();
 
 router.use(function(req, res, next) {
   console.log('----');
-  console.log(req.method + ": " + req.originalUrl);
+  console.log("request: "+req.method + ": " + req.originalUrl);
   console.log(req.body);
-  
+  console.log("params:");
+  console.log(req.params);
+
   if (req.headers.offset === undefined)
     req.headers.offset = 0;
   
   if (req.headers.limit === undefined)
     req.headers.limit = 20;
-  
-  console.log('----');
 
-  var token = req.headers.token;
-  req.headers.auth = false;
-  //req.headers.user = null;
-  //req.headers.userid = null;
 
-  if (token) {
-    var decoded = jwt.verify(token, 'secret');
-    console.log(decoded)
-    
-    User.findById(decoded.uid, function(err, user) {
-      req.headers.user = user;
-      req.headers.userid = user._id;
-      req.headers.auth = true;
-      console.log("Authenticated user! ("+user._id+")");
-      next();
-    });
+  var header_token = req.headers.token;
+  var body_token = req.body.token;
+  req.userid = null;
+  if (header_token) {
+    var decoded = jwt.verify(header_token, 'secret'); 
+    //todo: error nicely if bad token;
+    req.userid = decoded.uid;
+    console.log("(header) Authenticated user! ("+req.userid+")");
+    console.log('----');
+    next();
+  }
+  else if (body_token) {
+    var decoded = jwt.verify(body_token, 'secret'); 
+    //todo: error nicely if bad token;
+    req.userid = decoded.uid;
+    console.log("(body) Authenticated user! ("+req.userid+")");
+    console.log('----');
+    next();
   }
   else {
+    console.log('----');
     next();
   }
 });
@@ -103,7 +107,7 @@ challengesRoute.get(function(req, res) {
     var liked = false;
 
     // Fix user already found
-    User.findById(req.headers.userid, function(err, user) {
+    User.findById(req.userid, function(err, user) {
       if (err)
         res.send(err);
 
@@ -164,7 +168,7 @@ var storage = multer.diskStorage({
     cb(null, 'uploads/challenge_attempts')
   },
   filename: function (req, file, cb) {
-    cb(null, req.params.challenge_id + '_' + req.headers.userid + '_' + Date.now() + '_orig.mp4')
+    cb(null, req.params.challenge_id + '_' + req.userid + '_' + Date.now() + '_orig.mp4')
   }
 })
 
@@ -179,7 +183,7 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
     console.log(challenge);
 
     // Fix user already found
-    User.findById(req.headers.userid, function(err, user) {
+    User.findById(req.userid, function(err, user) {
       if (user != null) {
         user.records.push(challenge);
         user.save(function(err) {
@@ -238,7 +242,7 @@ attemptLikeRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    attempt.likes.push(req.headers.userid);
+    attempt.likes.push(req.userid);
     attempt.like_total += 1;
     
     Challenge.findById(attempt.challenge, function(err, challenge) {
@@ -246,7 +250,7 @@ attemptLikeRoute.post(function(req, res) {
         res.send(err);
 
       // Fix User already found
-      User.findById(req.headers.userid, function(err, user) {
+      User.findById(req.userid, function(err, user) {
         user.liked_challenges.push(challenge);
         user.save(function(err) {
           if (err)
@@ -280,7 +284,7 @@ attemptUnlikeRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    var index = attempt.likes.indexOf(req.headers.userid);
+    var index = attempt.likes.indexOf(req.userid);
     
     attempt.likes.splice(index, 1);
     attempt.like_total -= 1;
@@ -290,7 +294,7 @@ attemptUnlikeRoute.post(function(req, res) {
         res.send(err);
 
       // Fix User already found
-      User.findById(req.headers.userid, function(err, user) {
+      User.findById(req.userid, function(err, user) {
         var index = user.liked_challenges.indexOf(challenge._id);
 
         user.liked_challenges.splice(index, 1);
@@ -405,7 +409,7 @@ var userBookmarkRoute = router.route('/users/bookmark/:challenge_id');
 // POST a user bookmark
 userBookmarkRoute.post(function(req, res) {
   // Fix user already found
-  User.findById(req.headers.userid, function(err, user) {
+  User.findById(req.userid, function(err, user) {
     if (err)
       res.send(err);
 
@@ -452,16 +456,35 @@ userBookmarkRoute.post(function(req, res) {
 });
 
 router.route('/me').get(function(req,res) {
-  console.log("auth:" + req.headers.auth);
-
-  var token = req.headers.token;
-
-  if (token) {
-    var decoded = jwt.verify(token, 'secret');
-    console.log(decoded)
-
-    User.findById(decoded.uid, function(err, user) {
+  
+  if (req.userid!=null) {
+    User.findById(req.userid, function(err, user) {
       res.json(user);
+    });
+  }
+  else {
+    res.json("oops");
+  }
+});
+
+router.route('/me').put(function(req,res) {
+  
+  if (req.userid!=null) {
+    User.findById(req.userid, function(err, user) {
+      console.log
+      if(req.body.username!=undefined)
+      {
+        //todo: check for uniqueness on username
+        console.log("yo");
+        user.username = req.body.username;
+        user.save(function(err, user) {
+          res.json(user);
+        });
+      }
+      else
+      {
+        res.json(user);
+      }
     });
   }
   else {
@@ -512,17 +535,6 @@ router.route('/auth/facebook').post(function(req,res) {
         });
       }
     });
-
-    if (fb_res.email != email) {
-      res.json({ error: "oops" });
-      // console.log("oops emails dont match");
-    }
-    else {
-      user.save(function(err, u) {
-        var token = jwt.sign({ uid: u._id }, 'secret');
-        res.json({ user: user, new_account: new_account, token: token });
-      });
-    }
   });
 });
 
@@ -551,10 +563,7 @@ router.route('/geo').get(function(req, req_response) {
                 "limit": "200"
             },
             function(response) {
-              var resp_data = ["test"]; 
-
-              var promises = [];
-              
+              var promises = []; 
                 response.data.forEach(function(l) {
                   var promise = new Promise(function (resolve, reject) {
                     Location.findOne({
@@ -585,12 +594,7 @@ router.route('/geo').get(function(req, req_response) {
                 Promise.all(promises)
                 .then(function (res) {
                   req_response.json(res);
-                  //console.log("resulved"+res.length);
                 })
-              
-                //at this point, resp_data only contains ['test']
-                // console.log(resp_data);
-                // req_response.json(resp_data);
             }
         );
     });
