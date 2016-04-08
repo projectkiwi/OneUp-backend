@@ -399,8 +399,8 @@ userDetailRoute.get(function(req, res) {
   });
 });
 
-// Route for /users/bookmarks
-var userBookmarkRoute = router.route('/users/bookmarks/:challenge_id');
+// Route for /users/bookmark/:challenge_id
+var userBookmarkRoute = router.route('/users/bookmark/:challenge_id');
 
 // POST a user bookmark
 userBookmarkRoute.post(function(req, res) {
@@ -419,7 +419,34 @@ userBookmarkRoute.post(function(req, res) {
           res.send(err);
       });
 
-      res.json({ message: 'Bookmark Added!', data: challenge });
+      res.json({ message: 'Bookmark Added!' });
+    });
+  });
+});
+
+// Route for /users/unbookmark/:challenge_id
+var userBookmarkRoute = router.route('/users/unbookmark/:challenge_id');
+
+// POST a user unbookmark
+userBookmarkRoute.post(function(req, res) {
+  // Fix user already found
+  User.findById(req.headers.userid, function(err, user) {
+    if (err)
+      res.send(err);
+
+    Challenge.findById(req.params.challenge_id, function(err, challenge) {
+      if (err) 
+        res.send(err);
+
+      var index = user.bookmarks.indexOf(challenge._id);
+
+      user.bookmarks.splice(index, 1);
+      user.save(function(err) {
+        if (err)
+          res.send(err);
+      });
+
+      res.json({ message: 'Bookmark Removed!' });
     });
   });
 });
