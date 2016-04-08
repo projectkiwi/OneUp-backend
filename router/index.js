@@ -19,7 +19,6 @@ var User = require('../models/user');
 var Vote = require('../models/vote');
 var Location = require('../models/location');
 
-
 var router = express.Router();
 
 router.use(function(req, res, next) {
@@ -35,15 +34,15 @@ router.use(function(req, res, next) {
   if (req.headers.limit === undefined)
     req.headers.limit = 20;
 
-
   var header_token = req.headers.token;
   var body_token = req.body.token;
   req.userid = null;
+
   if (header_token) {
     var decoded = jwt.verify(header_token, 'secret'); 
     //todo: error nicely if bad token;
     req.userid = decoded.uid;
-    console.log("(header) Authenticated user! ("+req.userid+")");
+    console.log("(header) Authenticated user! (" + req.userid + ")");
     console.log('----');
     next();
   }
@@ -51,7 +50,7 @@ router.use(function(req, res, next) {
     var decoded = jwt.verify(body_token, 'secret'); 
     //todo: error nicely if bad token;
     req.userid = decoded.uid;
-    console.log("(body) Authenticated user! ("+req.userid+")");
+    console.log("(body) Authenticated user! (" + req.userid + ")");
     console.log('----');
     next();
   }
@@ -168,7 +167,7 @@ var storage = multer.diskStorage({
     cb(null, 'uploads/challenge_attempts')
   },
   filename: function (req, file, cb) {
-    cb(null, req.params.challenge_id + '_' + req.userid + '_' + Date.now() + '_orig.mp4')
+    cb(null, req.params.challenge_id + '_' + req.headers.userid + '_' + Date.now() + '_orig.mp4')
   }
 })
 
@@ -179,11 +178,10 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
     if (err)
       res.send(err);
 
-    console.log(req.file);
-    console.log(challenge);
+    console.log(req.headers.userid);
 
     // Fix user already found
-    User.findById(req.userid, function(err, user) {
+    User.findById(req.headers.userid, function(err, user) {
       if (user != null) {
         user.records.push(challenge);
         user.save(function(err) {
