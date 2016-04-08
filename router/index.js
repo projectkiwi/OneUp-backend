@@ -428,10 +428,7 @@ router.route('/geo').get(function(req, req_response) {
                 "limit": "200"
             },
             function(response) {
-              var resp_data = ["test"]; 
-
-              var promises = [];
-              
+              var promises = []; 
                 response.data.forEach(function(l) {
                   var promise = new Promise(function (resolve, reject) {
                     Location.findOne({
@@ -462,12 +459,7 @@ router.route('/geo').get(function(req, req_response) {
                 Promise.all(promises)
                 .then(function (res) {
                   req_response.json(res);
-                  //console.log("resulved"+res.length);
                 })
-              
-                //at this point, resp_data only contains ['test']
-                // console.log(resp_data);
-                // req_response.json(resp_data);
             }
         );
     });
