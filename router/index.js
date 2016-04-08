@@ -24,35 +24,30 @@ var router = express.Router();
 
 router.use(function(req, res, next) {
   console.log('----');
-  console.log(req.method + ": " + req.originalUrl);
+  console.log("request: "+req.method + ": " + req.originalUrl);
   console.log(req.body);
-  
+  console.log("params:");
+  console.log(req.params);
+
   if (req.headers.offset === undefined)
     req.headers.offset = 0;
   
   if (req.headers.limit === undefined)
     req.headers.limit = 20;
-  
-  console.log('----');
+
 
   var token = req.headers.token;
-  req.headers.auth = false;
-  //req.headers.user = null;
-  //req.headers.userid = null;
-
+  req.userid = null;
   if (token) {
-    var decoded = jwt.verify(token, 'secret');
-    console.log(decoded)
-    
-    User.findById(decoded.uid, function(err, user) {
-      req.headers.user = user;
-      req.headers.userid = user._id;
-      req.headers.auth = true;
-      console.log("Authenticated user! ("+user._id+")");
-      next();
-    });
+    var decoded = jwt.verify(token, 'secret'); 
+    //todo: error nicely if bad token;
+    req.userid = decoded.uid;
+    console.log("Authenticated user! ("+req.userid+")");
+    console.log('----');
+    next();
   }
   else {
+    console.log('----');
     next();
   }
 });
@@ -103,7 +98,7 @@ challengesRoute.get(function(req, res) {
     var liked = false;
 
     // Fix user already found
-    User.findById(req.headers.userid, function(err, user) {
+    User.findById(req.userid, function(err, user) {
       if (err)
         res.send(err);
 
@@ -164,7 +159,7 @@ var storage = multer.diskStorage({
     cb(null, 'uploads/challenge_attempts')
   },
   filename: function (req, file, cb) {
-    cb(null, req.params.challenge_id + '_' + req.headers.userid + '_' + Date.now() + '_orig.mp4')
+    cb(null, req.params.challenge_id + '_' + req.userid + '_' + Date.now() + '_orig.mp4')
   }
 })
 
@@ -179,7 +174,7 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
     console.log(challenge);
 
     // Fix user already found
-    User.findById(req.headers.userid, function(err, user) {
+    User.findById(req.userid, function(err, user) {
       if (user != null) {
         user.records.push(challenge);
         user.save(function(err) {
@@ -238,7 +233,7 @@ attemptLikeRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    attempt.likes.push(req.headers.userid);
+    attempt.likes.push(req.userid);
     attempt.like_total += 1;
     
     Challenge.findById(attempt.challenge, function(err, challenge) {
@@ -246,7 +241,7 @@ attemptLikeRoute.post(function(req, res) {
         res.send(err);
 
       // Fix User already found
-      User.findById(req.headers.userid, function(err, user) {
+      User.findById(req.userid, function(err, user) {
         user.liked_challenges.push(challenge);
         user.save(function(err) {
           if (err)
@@ -280,7 +275,7 @@ attemptUnlikeRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    var index = attempt.likes.indexOf(req.headers.userid);
+    var index = attempt.likes.indexOf(req.userid);
     
     attempt.likes.splice(index, 1);
     attempt.like_total -= 1;
@@ -290,7 +285,7 @@ attemptUnlikeRoute.post(function(req, res) {
         res.send(err);
 
       // Fix User already found
-      User.findById(req.headers.userid, function(err, user) {
+      User.findById(req.userid, function(err, user) {
         var index = user.liked_challenges.indexOf(challenge._id);
 
         user.liked_challenges.splice(index, 1);
@@ -405,7 +400,7 @@ var userBookmarkRoute = router.route('/users/bookmarks/:challenge_id');
 // POST a user bookmark
 userBookmarkRoute.post(function(req, res) {
   // Fix user already found
-  User.findById(req.headers.userid, function(err, user) {
+  User.findById(req.userid, function(err, user) {
     if (err)
       res.send(err);
 
@@ -425,15 +420,9 @@ userBookmarkRoute.post(function(req, res) {
 });
 
 router.route('/me').get(function(req,res) {
-  console.log("auth:" + req.headers.auth);
-
-  var token = req.headers.token;
-
-  if (token) {
-    var decoded = jwt.verify(token, 'secret');
-    console.log(decoded)
-
-    User.findById(decoded.uid, function(err, user) {
+  
+  if (req.userid!=null) {
+    User.findById(req.userid, function(err, user) {
       res.json(user);
     });
   }
