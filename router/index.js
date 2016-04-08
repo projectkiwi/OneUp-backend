@@ -7,9 +7,10 @@ var mongoosePaginate = require('mongoose-paginate');
 var FB = require('fb');
 var jwt = require('jsonwebtoken');
 var keys = require('../keys');
+var gify = require('gify');
+var multer  = require('multer');
 var Promise = require('promise');
 
-var gify = require('gify');
 // MODELS
 var ChallengeGroup = require('../models/challengegroup');
 var Challenge = require('../models/challenge');
@@ -18,7 +19,7 @@ var User = require('../models/user');
 var Vote = require('../models/vote');
 var Location = require('../models/location');
 
-var multer  = require('multer');
+
 var router = express.Router();
 
 router.use(function(req, res, next) {
@@ -36,8 +37,8 @@ router.use(function(req, res, next) {
 
   var token = req.headers.token;
   req.headers.auth = false;
-  req.headers.user = null;
-  req.headers.userid = null;
+  //req.headers.user = null;
+  //req.headers.userid = null;
 
   if (token) {
     var decoded = jwt.verify(token, 'secret');
@@ -47,7 +48,7 @@ router.use(function(req, res, next) {
       req.headers.user = user;
       req.headers.userid = user._id;
       req.headers.auth = true;
-      console.log("authenticated user! ("+user._id+")");
+      console.log("Authenticated user! ("+user._id+")");
       next();
     });
   }
@@ -86,7 +87,7 @@ var challengesRoute = router.route('/challenges');
 // GET global challenges
 challengesRoute.get(function(req, res) {
   var options = {
-    populate: 'attempts',
+    populate: 'attempts record_holders',
     sort: { 
       challenge_likes: -1,
       updated_on: -1
@@ -99,19 +100,26 @@ challengesRoute.get(function(req, res) {
     if (err)
       res.send(err);
 
-    for (c of challenges.docs) {
-      // Check if user has liked
-      console.log(c.name);
+    var liked = false;
 
-      // If user has liked challenge set boolean
+    // Fix user already found
+    User.findById(req.headers.userid, function(err, user) {
+      if (err)
+        res.send(err);
 
-      // Else set to false
+      if (user != null) {
+        for (c of challenges.docs) {
+          if (user.liked_challenges.indexOf(c._id) != -1) {
+            c.user_liked = true;
+          }
+          else {
+            c.user_liked = false;
+          }
 
-      // Find attempts user has liked and add to an array
-
-      // Use JSON.stringify()
-      // Store liked information with user model
-    }
+          c.save();
+        }
+      }
+    });
 
     res.json(challenges);
   });
@@ -119,11 +127,8 @@ challengesRoute.get(function(req, res) {
 
 // POST create a new challenge
 challengesRoute.post(function(req, res) {
-  console.log(req.body);
-
   var challenge = new Challenge();
   challenge.name = req.body.name;
-  challenge.location  = location;
   challenge.description = req.body.description;
   challenge.pattern = req.body.pattern;
   challenge.categories = req.body.categories;
@@ -147,7 +152,7 @@ challengeDetailRoute.get(function(req, res) {
       res.send(err);
 
     res.json(challenge);
-  }).populate('attempts');
+  }).populate('attempts record_holders');
 });
 
 // Route for /challenges/:challenge_id/attempts
@@ -159,46 +164,68 @@ var storage = multer.diskStorage({
     cb(null, 'uploads/challenge_attempts')
   },
   filename: function (req, file, cb) {
-    cb(null, req.params.challenge_id + '_' + req.headers.userid + '_' + Date.now()+'_orig.mp4')
+    cb(null, req.params.challenge_id + '_' + req.headers.userid + '_' + Date.now() + '_orig.mp4')
   }
 })
 
-var upload = multer({ storage: storage })
+var upload = multer({ storage: storage });
+
 challengeAttemptRoute.post(upload.single('video'), function(req, res) {
   Challenge.findById(req.params.challenge_id, function(err, challenge) {
     if (err)
       res.send(err);
 
     console.log(req.file);
+    console.log(challenge);
 
-    var attempt = new Attempt();
-  
-    if (req.headers.auth == true) {
-      attempt.user = req.headers.userid;
-    }
-    var opts = {
-  width: 300
-};
-  
+    // Fix user already found
+    User.findById(req.headers.userid, function(err, user) {
+      if (user != null) {
+        user.records.push(challenge);
+        user.save(function(err) {
+          if (err)
+            res.send(err);
+        });
 
-    var f = req.file.path.substr(0, req.file.path.lastIndexOf('_orig'));
-    var gifpath = f+".gif";
-    console.log("TEST: "+f);
-    gify(req.file.path, gifpath, opts, function(err){
-      if (err) throw err;
+        var attempt = new Attempt();
+
+        var opts = {
+          width: 300
+        };
+
+        var f = req.file.path.substr(0, req.file.path.lastIndexOf('_orig'));
+        var gifpath = f + ".gif";
+        console.log("TEST: " + f);
+      
+        gify(req.file.path, gifpath, opts, function(err) {
+          if (err) 
+            throw err;
+        });
+        
+        attempt.orig_video = req.file.path;
+        attempt.gif_img = gifpath;
+        attempt.user = user;
+        attempt.description = req.body.description;
+        attempt.challenge =  req.params.challenge_id;
+        attempt.save(function(err) {
+          if (err)
+            res.send(err);
+        });
+
+        challenge.updated_on = Date.now();
+        challenge.attempts.push(attempt);
+        challenge.record_holders.push(user);
+        challenge.save(function(err) {
+          if (err)
+            res.send(err);
+        });
+
+        res.json({ message: 'Attempt Created!', data: attempt });
+      }
+      else {
+        res.json({ message: 'Invalid User' });
+      }   
     });
-
-    attempt.orig_video = req.file.path;
-    attempt.gif_img = gifpath;
-    attempt.description = req.body.description;
-    attempt.challenge =  req.params.challenge_id;
-    attempt.save();
-
-    challenge.updated_on = Date.now();
-    challenge.attempts.push(attempt);
-    challenge.save();
-
-    res.json({ message: 'Attempt Created!', data: attempt });
   });
 });
 
@@ -211,31 +238,82 @@ attemptLikeRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    var increment = 0;
-    var index = attempt.likes.indexOf(req.headers.userid);
-
-    if (index == -1) {
-      attempt.likes.push(req.headers.userid);
-      increment = 1;
-    }
-    else {
-      attempt.likes = attempt.likes.splice(index, 1);
-      increment = -1;
-    }
-
-    attempt.like_total += increment;
+    attempt.likes.push(req.headers.userid);
+    attempt.like_total += 1;
     
     Challenge.findById(attempt.challenge, function(err, challenge) {
       if (err)
         res.send(err);
 
-      challenge.challenge_likes += increment;
-      challenge.save();
+      // Fix User already found
+      User.findById(req.headers.userid, function(err, user) {
+        user.liked_challenges.push(challenge);
+        user.save(function(err) {
+          if (err)
+            res.send(err);
+        });
+      });
+
+      challenge.challenge_likes += 1;
+      challenge.save(function(err) {
+        if (err)
+          res.send(err);
+      });
     });
 
-    attempt.save();
+    attempt.save(function(err) {
+      if (err) {
+        res.send(err);
+      }
+    });
 
     res.json({ message: 'Like Recorded!' });
+  });
+});
+
+// Route for /challenges/unlike/:attempt_id
+var attemptUnlikeRoute = router.route('/challenges/unlike/:attempt_id');
+
+// POST unlike an attempt
+attemptUnlikeRoute.post(function(req, res) {
+  Attempt.findById(req.params.attempt_id, function(err, attempt) {
+    if (err)
+      res.send(err);
+
+    var index = attempt.likes.indexOf(req.headers.userid);
+    
+    attempt.likes.splice(index, 1);
+    attempt.like_total -= 1;
+    
+    Challenge.findById(attempt.challenge, function(err, challenge) {
+      if (err)
+        res.send(err);
+
+      // Fix User already found
+      User.findById(req.headers.userid, function(err, user) {
+        var index = user.liked_challenges.indexOf(challenge._id);
+
+        user.liked_challenges.splice(index, 1);
+        user.save(function(err) {
+          if (err)
+            res.send(err);
+        });
+      });
+
+      challenge.challenge_likes -= 1;
+      challenge.save(function(err) {
+        if (err)
+          res.send(err);
+      });
+    });
+
+    attempt.save(function(err) {
+      if (err) {
+        res.send(err);
+      }
+    });
+
+    res.json({ message: 'Unlike Recorded!' });
   });
 });
 
@@ -286,6 +364,18 @@ localPopularChallengesRoute.get(function(req, res) {
 // Route for /users
 var usersRoute = router.route('/users');
 
+// POST a user
+usersRoute.post(function(req, res) {
+  var user = new User();
+
+  user.save(function(err) {
+    if (err)
+      res.send(err);
+  });
+
+  res.json(user);
+});
+
 // GET all users
 usersRoute.get(function(req, res) {
   User.find().exec(function(err, users) {
@@ -296,8 +386,8 @@ usersRoute.get(function(req, res) {
   });
 });
 
-// Route for /users/:user_id
-var userDetailRoute = router.route('/users/:user_id');
+// Route for /user
+var userDetailRoute = router.route('/user/:user_id');
 
 // GET user details
 userDetailRoute.get(function(req, res) {
@@ -309,20 +399,26 @@ userDetailRoute.get(function(req, res) {
   });
 });
 
-// Route for /users/:user_id/bookmarks
-var userBookmarkRoute = router.route('/users/:user_id/bookmarks');
+// Route for /users/bookmarks
+var userBookmarkRoute = router.route('/users/bookmarks/:challenge_id');
 
 // POST a user bookmark
 userBookmarkRoute.post(function(req, res) {
-  User.findById(req.params.user_id, function(err, user) {
+  // Fix user already found
+  User.findById(req.headers.userid, function(err, user) {
     if (err)
       res.send(err);
 
-    Challenge.findById(req.body.challenge_id, function(err, challenge) {
+    Challenge.findById(req.params.challenge_id, function(err, challenge) {
       if (err) 
         res.send(err);
 
-      user.bookmarks.push(challenge);
+      user.bookmarks.push(challenge._id);
+      user.save(function(err) {
+        if (err)
+          res.send(err);
+      });
+
       res.json({ message: 'Bookmark Added!', data: challenge });
     });
   });

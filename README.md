@@ -13,7 +13,7 @@ The following **required** functionality is completed:
 #### User Story 3
 
 - [X] Create API endpoint to fetch popular challenges - Jeremy
-- [ ] Express an opinion on past records by liking - Jeremy
+- [X] Express an opinion on past records by liking - Jeremy
 - [ ] Express an opinion on past records by commenting - Jeremy
 
 #### User Story 4
@@ -29,15 +29,15 @@ The following **required** functionality is completed:
 
 #### User Story 6
 
-- [ ] As a user, I would like to be able to view a list of my records held - Jeremy
+- [X] As a user, I would like to be able to view a list of my records held - Jeremy
 
 #### User Story 8
 
-- [ ] Implement timeline of past record holders - Jeremy
+- [X] Implement timeline of past record holders - Jeremy
 
 #### User Story 9
 
-- [ ] Build backend for bookmarks
+- [X] Build backend for bookmarks
 
 #### User Story 10
 
