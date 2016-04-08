@@ -485,17 +485,6 @@ router.route('/auth/facebook').post(function(req,res) {
         });
       }
     });
-
-    if (fb_res.email != email) {
-      res.json({ error: "oops" });
-      // console.log("oops emails dont match");
-    }
-    else {
-      user.save(function(err, u) {
-        var token = jwt.sign({ uid: u._id }, 'secret');
-        res.json({ user: user, new_account: new_account, token: token });
-      });
-    }
   });
 });
 
