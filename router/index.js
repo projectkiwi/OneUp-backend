@@ -179,7 +179,55 @@ localNewChallengesRoute.get(function(req, res) {
     if (err)
       res.send(err);
 
-    res.json(challenges);
+    User.findById(req.userid, function(err, user) {
+      if (err)
+        res.send(err);
+
+      for (c of challenges.docs) {
+        var likedPrev = false;
+        c.liked_top_attempt = false;
+        c.liked_previous_attempt = false;
+
+        if (c.user_likes.indexOf(req.userid) != -1) {
+          for (a of c.attempts) {
+            if (a.user_likes.indexOf(req.userid) != -1) {
+              a.liked_attempt = true;
+
+              if (c.attempts.indexOf(a) == c.attempts.length - 1) {
+                c.liked_top_attempt = true;
+              }
+              else {
+                c.liked_previous_attempt = true;
+              }
+            }
+            else {
+              a.liked_attempt = false;
+            }
+
+            a.save(function(err) {
+              if (err)
+                res.send(err);
+            });
+          }
+        }
+        else {
+          for (a of c.attempts) {
+            a.liked_attempt = false;
+            a.save(function(err) {
+              if (err)
+                res.send(err);
+            });
+          }
+        }
+
+        c.save(function(err) {
+          if (err)
+            res.send(err);
+        });
+      }
+
+      res.json(challenges);
+    });
   });
 });
 
@@ -202,7 +250,55 @@ localPopularChallengesRoute.get(function(req, res) {
     if (err)
       res.send(err);
 
-    res.json(challenges);
+    User.findById(req.userid, function(err, user) {
+      if (err)
+        res.send(err);
+
+      for (c of challenges.docs) {
+        var likedPrev = false;
+        c.liked_top_attempt = false;
+        c.liked_previous_attempt = false;
+
+        if (c.user_likes.indexOf(req.userid) != -1) {
+          for (a of c.attempts) {
+            if (a.user_likes.indexOf(req.userid) != -1) {
+              a.liked_attempt = true;
+
+              if (c.attempts.indexOf(a) == c.attempts.length - 1) {
+                c.liked_top_attempt = true;
+              }
+              else {
+                c.liked_previous_attempt = true;
+              }
+            }
+            else {
+              a.liked_attempt = false;
+            }
+
+            a.save(function(err) {
+              if (err)
+                res.send(err);
+            });
+          }
+        }
+        else {
+          for (a of c.attempts) {
+            a.liked_attempt = false;
+            a.save(function(err) {
+              if (err)
+                res.send(err);
+            });
+          }
+        }
+
+        c.save(function(err) {
+          if (err)
+            res.send(err);
+        });
+      }
+
+      res.json(challenges);
+    });
   });
 });
 
