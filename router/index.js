@@ -114,14 +114,19 @@ challengesRoute.get(function(req, res) {
 
       for (c of challenges.docs) {
         var likedPrev = false;
+        c.liked_top_attempt = false;
+        c.liked_previous_attempt = false;
 
         if (c.user_likes.indexOf(req.userid) != -1) {
           for (a of c.attempts) {
             if (a.user_likes.indexOf(req.userid) != -1) {
               a.liked_attempt = true;
 
-              if (c.attempts.indexOf(a) != c.attempts.length - 1) {
-                likedPrev = true;
+              if (c.attempts.indexOf(a) == c.attempts.length - 1) {
+                c.liked_top_attempt = true;
+              }
+              else {
+                c.liked_previous_attempt = true;
               }
             }
             else {
@@ -133,30 +138,8 @@ challengesRoute.get(function(req, res) {
                 res.send(err);
             });
           }
-
-          if (c.attempts[c.attempts.length - 1].user_likes.indexOf(req.userid) != -1) {
-            c.liked_top_attempt = true;
-
-            if (likedPrev) {
-              c.liked_previous_attempt = true;
-            }
-            else {
-              c.liked_previous_attempt = false;
-            } 
-          }
-          else if (likedPrev) {
-            c.liked_previous_attempt = true;
-            c.liked_top_attempt = false;
-          }
-          else {
-            c.liked_top_attempt = false;
-            c.liked_previous_attempt = false;
-          }
         }
         else {
-          c.liked_top_attempt = false;
-          c.liked_previous_attempt = false;
-
           for (a of c.attempts) {
             a.liked_attempt = false;
             a.save(function(err) {
