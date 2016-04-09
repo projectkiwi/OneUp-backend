@@ -4,6 +4,18 @@
 		"selected_items":
 		[
 			[
+				"inde",
+				"indexOf"
+			],
+			[
+				"liked",
+				"liked_top_attempt"
+			],
+			[
+				"liked_",
+				"liked_previous_attempt"
+			],
+			[
 				"ch",
 				"challenge_votes"
 			],
@@ -31,7 +43,7 @@
 			"file": "router/index.js",
 			"settings":
 			{
-				"buffer_size": 14412,
+				"buffer_size": 17663,
 				"line_ending": "Unix"
 			}
 		},
@@ -47,7 +59,7 @@
 			"file": "models/challenge.js",
 			"settings":
 			{
-				"buffer_size": 706,
+				"buffer_size": 813,
 				"line_ending": "Unix"
 			}
 		},
@@ -55,7 +67,7 @@
 			"file": "models/attempt.js",
 			"settings":
 			{
-				"buffer_size": 614,
+				"buffer_size": 645,
 				"line_ending": "Unix"
 			}
 		}
@@ -93,10 +105,16 @@
 	"expanded_folders":
 	[
 		"/C/Dev/Projects/OneUp/OneUp-backend",
-		"/C/Dev/Projects/OneUp/OneUp-backend/models"
+		"/C/Dev/Projects/OneUp/OneUp-backend/models",
+		"/C/Dev/Projects/OneUp/OneUp-backend/uploads",
+		"/C/Dev/Projects/OneUp/OneUp-backend/uploads/challenge_attempts"
 	],
 	"file_history":
 	[
+		"/C/Dev/Projects/OneUp/OneUp-backend/uploads/challenge_attempts/5706a4b49480af882777c3c0_57083584f9f746900b1e07c9_1460227760711_orig.mp4",
+		"/C/Dev/Projects/OneUp/OneUp-backend/node_modules/gify/index.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/uploads/challenge_attempts/5706a4b49480af882777c3c0_57083584f9f746900b1e07c9_1460228772636.gif",
+		"/C/Dev/Projects/OneUp/OneUp-backend/uploads/challenge_attempts/5706a4b49480af882777c3c0_57083584f9f746900b1e07c9_1460226848245_orig.mp4",
 		"/C/Dev/Projects/OneUp/OneUp-backend/server.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/keys.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/challenge.js",
@@ -150,6 +168,11 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"attempt.likes",
+			"challenge.likes",
+			"popu",
+			"req.user",
+			"req.head",
 			"User.find",
 			"userid",
 			"populate",
@@ -187,15 +210,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 14412,
+						"buffer_size": 17663,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								9600,
-								9600
+								9344,
+								9344
 							]
 						],
 						"settings":
@@ -205,7 +228,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 11049.0,
+						"translation.y": 1153.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -245,15 +268,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 706,
+						"buffer_size": 813,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								706,
-								706
+								289,
+								289
 							]
 						],
 						"settings":
@@ -275,15 +298,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 614,
+						"buffer_size": 645,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								291,
-								291
+								581,
+								581
 							]
 						],
 						"settings":
