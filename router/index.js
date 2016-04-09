@@ -23,7 +23,7 @@ var router = express.Router();
 
 router.use(function(req, res, next) {
   console.log('----');
-  console.log("request: "+req.method + ": " + req.originalUrl);
+  console.log("request: " + req.method + ": " + req.originalUrl);
   console.log(req.body);
   console.log("params:");
   console.log(req.params);
@@ -56,7 +56,13 @@ router.use(function(req, res, next) {
   }
   else {
     console.log('----');
-    next();
+
+    if (req.userid == null && req.originalUrl != '/auth/facebook') {
+      res.json({ message: 'Invalid User!' });
+    }
+    else {
+      next();
+    } 
   }
 });
 
@@ -76,7 +82,6 @@ router.route('/').get(function(req, res) {
       });
 
       table.push([methods, r.route.path,JSON.stringify(r.keys)]);
-      console.log(methods + "\t" + r.route.path);
     }
   });
 
@@ -103,26 +108,116 @@ challengesRoute.get(function(req, res) {
     if (err)
       res.send(err);
 
-    var liked = false;
-
-    // Fix user already found
     User.findById(req.userid, function(err, user) {
       if (err)
         res.send(err);
 
-      if (user != null) {
-        for (c of challenges.docs) {
-          if (user.liked_challenges.indexOf(c._id) != -1) {
-            c.user_liked = true;
-          }
-          else {
-            c.user_liked = false;
+      for (c of challenges.docs) {
+        var likedPrev = false;
+
+        if (c.user_likes.indexOf(req.userid) != -1) {
+          for (a of c.attempts) {
+            if (a.user_likes.indexOf(req.userid) != -1) {
+              a.liked_attempt = true;
+
+              if (c.attempts.indexOf(a) != c.attempts.length - 1) {
+                likedPrev = true;
+              }
+            }
+            else {
+              a.liked_attempt = false;
+            }
+
+            a.save(function(err) {
+              if (err)
+                res.send(err);
+            });
           }
 
-          c.save();
+          if (c.attempts[c.attempts.length - 1].user_likes.indexOf(req.userid) != -1) {
+            c.liked_top_attempt = true;
+
+            if (likedPrev) {
+              c.liked_previous_attempt = true;
+            }
+            else {
+              c.liked_previous_attempt = false;
+            } 
+          }
+          else if (likedPrev) {
+            c.liked_previous_attempt = true;
+            c.liked_top_attempt = false;
+          }
+          else {
+            c.liked_top_attempt = false;
+            c.liked_previous_attempt = false;
+          }
         }
+        else {
+          c.liked_top_attempt = false;
+          c.liked_previous_attempt = false;
+
+          for (a of c.attempts) {
+            a.liked_attempt = false;
+            a.save(function(err) {
+              if (err)
+                res.send(err);
+            });
+          }
+        }
+
+        c.save(function(err) {
+          if (err)
+            res.send(err);
+        });
       }
+
+      res.json(challenges);
     });
+  });
+});
+
+// Route for /challenges/local/new
+var localNewChallengesRoute = router.route('/challenges/local/new');
+
+// GET local new challenges
+localNewChallengesRoute.get(function(req, res) {
+  var options = {
+    populate: 'attempts',
+    sort: {
+      updated_on: -1,
+      challenge_likes: -1
+    },
+    offset: parseInt(req.headers.offset), 
+    limit: parseInt(req.headers.limit)
+  };
+
+  Challenge.paginate({}, options, function(err, challenges) {
+    if (err)
+      res.send(err);
+
+    res.json(challenges);
+  });
+});
+
+// Route for /challenges/local/popular
+var localPopularChallengesRoute = router.route('/challenges/local/popular');
+
+// GET local popular challenges
+localPopularChallengesRoute.get(function(req, res) {
+  var options = {
+    populate: 'attempts',
+    sort: { 
+      challenge_likes: -1,
+      updated_on: -1
+    },
+    offset: parseInt(req.headers.offset),
+    limit: parseInt(req.headers.limit)
+  };
+
+  Challenge.paginate({}, options, function(err, challenges) {
+    if (err)
+      res.send(err);
 
     res.json(challenges);
   });
@@ -178,53 +273,47 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
     if (err)
       res.send(err);
 
-    // Fix user already found
     User.findById(req.userid, function(err, user) {
-      if (user != null) {
-        user.records.push(challenge);
-        user.save(function(err) {
-          if (err)
-            res.send(err);
-        });
+      user.records.push(challenge);
+      user.save(function(err) {
+        if (err)
+          res.send(err);
+      });
 
-        var attempt = new Attempt();
+      var attempt = new Attempt();
 
-        var opts = {
-          width: 300
-        };
+      var opts = {
+        width: 300
+      };
 
-        var f = req.file.path.substr(0, req.file.path.lastIndexOf('_orig'));
-        var gifpath = f + ".gif";
-        console.log("TEST: " + f);
+      var f = req.file.path.substr(0, req.file.path.lastIndexOf('_orig'));
+      var gifpath = f + ".gif";
+      console.log("TEST: " + f);
+    
+      gify(req.file.path, gifpath, opts, function(err) {
+        if (err) 
+          throw err;
+      });
       
-        gify(req.file.path, gifpath, opts, function(err) {
-          if (err) 
-            throw err;
-        });
-        
-        attempt.orig_video = req.file.path;
-        attempt.gif_img = gifpath;
-        attempt.user = user;
-        attempt.description = req.body.description;
-        attempt.challenge =  req.params.challenge_id;
-        attempt.save(function(err) {
-          if (err)
-            res.send(err);
-        });
+      attempt.orig_video = req.file.path;
+      attempt.gif_img = gifpath;
+      attempt.user = user;
+      attempt.description = req.body.description;
+      attempt.challenge =  req.params.challenge_id;
+      attempt.save(function(err) {
+        if (err)
+          res.send(err);
+      });
 
-        challenge.updated_on = Date.now();
-        challenge.attempts.push(attempt);
-        challenge.record_holders.push(user);
-        challenge.save(function(err) {
-          if (err)
-            res.send(err);
-        });
+      challenge.updated_on = Date.now();
+      challenge.attempts.push(attempt);
+      challenge.record_holders.push(user);
+      challenge.save(function(err) {
+        if (err)
+          res.send(err);
+      });
 
-        res.json({ message: 'Attempt Created!', data: attempt });
-      }
-      else {
-        res.json({ message: 'Invalid User' });
-      }   
+      res.json({ message: 'Attempt Created!', data: attempt }); 
     });
   });
 });
@@ -238,14 +327,13 @@ attemptLikeRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    attempt.likes.push(req.userid);
+    attempt.user_likes.push(req.userid);
     attempt.like_total += 1;
     
     Challenge.findById(attempt.challenge, function(err, challenge) {
       if (err)
         res.send(err);
 
-      // Fix User already found
       User.findById(req.userid, function(err, user) {
         user.liked_challenges.push(challenge);
         user.save(function(err) {
@@ -255,6 +343,7 @@ attemptLikeRoute.post(function(req, res) {
       });
 
       challenge.challenge_likes += 1;
+      challenge.user_likes.push(req.userid);
       challenge.save(function(err) {
         if (err)
           res.send(err);
@@ -279,21 +368,16 @@ attemptUnlikeRoute.post(function(req, res) {
   Attempt.findById(req.params.attempt_id, function(err, attempt) {
     if (err)
       res.send(err);
-
-    var index = attempt.likes.indexOf(req.userid);
     
-    attempt.likes.splice(index, 1);
+    attempt.user_likes.splice(attempt.user_likes.indexOf(req.userid, 1));
     attempt.like_total -= 1;
     
     Challenge.findById(attempt.challenge, function(err, challenge) {
       if (err)
         res.send(err);
 
-      // Fix User already found
       User.findById(req.userid, function(err, user) {
-        var index = user.liked_challenges.indexOf(challenge._id);
-
-        user.liked_challenges.splice(index, 1);
+        user.liked_challenges.splice(user.liked_challenges.indexOf(challenge._id), 1);
         user.save(function(err) {
           if (err)
             res.send(err);
@@ -301,6 +385,7 @@ attemptUnlikeRoute.post(function(req, res) {
       });
 
       challenge.challenge_likes -= 1;
+      challenge.user_likes.splice(challenge.user_likes.indexOf(req.userid), 1);
       challenge.save(function(err) {
         if (err)
           res.send(err);
@@ -317,64 +402,10 @@ attemptUnlikeRoute.post(function(req, res) {
   });
 });
 
-// Route for /challenges/local/new
-var localNewChallengesRoute = router.route('/challenges/local/new');
 
-localNewChallengesRoute.get(function(req, res) {
-  var options = {
-    populate: 'attempts',
-    sort: {
-      updated_on: -1,
-      challenge_likes: -1
-    },
-    offset: parseInt(req.headers.offset), 
-    limit: parseInt(req.headers.limit)
-  };
-
-  Challenge.paginate({}, options, function(err, challenges) {
-    if (err)
-      res.send(err);
-
-    res.json(challenges);
-  });
-});
-
-// Route for /challenges/local/popular
-var localPopularChallengesRoute = router.route('/challenges/local/popular');
-
-localPopularChallengesRoute.get(function(req, res) {
-  var options = {
-    populate: 'attempts',
-    sort: { 
-      challenge_likes: -1,
-      updated_on: -1
-    },
-    offset: parseInt(req.headers.offset),
-    limit: parseInt(req.headers.limit)
-  };
-
-  Challenge.paginate({}, options, function(err, challenges) {
-    if (err)
-      res.send(err);
-
-    res.json(challenges);
-  });
-});
 
 // Route for /users
 var usersRoute = router.route('/users');
-
-// POST a user
-usersRoute.post(function(req, res) {
-  var user = new User();
-
-  user.save(function(err) {
-    if (err)
-      res.send(err);
-  });
-
-  res.json(user);
-});
 
 // GET all users
 usersRoute.get(function(req, res) {
@@ -383,19 +414,6 @@ usersRoute.get(function(req, res) {
       res.send(err);
 
     res.json(users);
-  });
-});
-
-// Route for /user
-var userDetailRoute = router.route('/user/:user_id');
-
-// GET user details
-userDetailRoute.get(function(req, res) {
-  User.findById(req.params.user_id, function(err, user) {
-    if (err)
-      res.send(err);
-
-    res.json(user);
   });
 });
 
@@ -451,41 +469,37 @@ userBookmarkRoute.post(function(req, res) {
   });
 });
 
+var userBookmarksRoute = router.route('/users/bookmarks');
+
+userBookmarksRoute.get(function(req, res) {
+  User.findById(req.userid, function(err, user) {
+    if (err)
+      res.send(err);
+
+    res.json(user.bookmarks);
+  });
+});
+
 router.route('/me').get(function(req,res) {
-  
-  if (req.userid!=null) {
-    User.findById(req.userid, function(err, user) {
-      res.json(user);
-    });
-  }
-  else {
-    res.json("oops");
-  }
+  User.findById(req.userid, function(err, user) {
+    res.json(user);
+  });
 });
 
 router.route('/me').put(function(req,res) {
-  
-  if (req.userid!=null) {
-    User.findById(req.userid, function(err, user) {
-      console.log
-      if(req.body.username!=undefined)
-      {
-        //todo: check for uniqueness on username
-        console.log("yo");
-        user.username = req.body.username;
-        user.save(function(err, user) {
-          res.json(user);
-        });
-      }
-      else
-      {
+  User.findById(req.userid, function(err, user) {
+    if (req.body.username != undefined) {
+      //todo: check for uniqueness on username
+      console.log("yo");
+      user.username = req.body.username;
+      user.save(function(err, user) {
         res.json(user);
-      }
-    });
-  }
-  else {
-    res.json("oops");
-  }
+      });
+    }
+    else {
+      res.json(user);
+    }
+  });
 });
 
 router.route('/auth/facebook').post(function(req,res) {
@@ -493,6 +507,8 @@ router.route('/auth/facebook').post(function(req,res) {
   var email = req.body.email;
   var new_account;
 
+  console.log(req.body.access_token);
+  console.log(req.body.email);
   console.log(req.body);
   
   User.findOne({ 'email': email }, function (err, user) {
@@ -518,16 +534,15 @@ router.route('/auth/facebook').post(function(req,res) {
     
     FB.api('me', { fields: ['id', 'name', 'email'] }, function (fb_res) {
       user.facebook_id = fb_res.id;
-                    
+
       if (fb_res.email != email) {
-        res.json({error: "oops"});
-        // console.log("oops emails dont match");
+        res.json({error: "Error: Emails don't match!"});
       }
       else {
         user.save(function(err, u) {
           var uid = u._id;
           var token = jwt.sign({ uid: uid }, 'secret');
-          res.json({ user: user, new_account: new_account, token: token });
+          res.json({ message: 'User Authenticated', user: user, new_account: new_account, token: token });
         });
       }
     });

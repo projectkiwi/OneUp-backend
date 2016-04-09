@@ -8,9 +8,10 @@ var AttemptSchema   = new mongoose.Schema({
   gif_img: String,
   orig_video: String,
   comments: [{ type: mongoose.Schema.ObjectId, ref: 'Comment' }],
-  likes: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+  user_likes: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   like_total: { type: Number, default: 0 },
-  created_on: { type: Date, default: Date.now }
+  created_on: { type: Date, default: Date.now },
+  liked_attempt: Boolean
 });
 
 module.exports = mongoose.model('Attempt', AttemptSchema);
