@@ -25,8 +25,10 @@ router.use(function(req, res, next) {
   console.log('----');
   console.log("request: " + req.method + ": " + req.originalUrl);
   console.log(req.body);
-  console.log("params:");
+  console.log("post params:");
   console.log(req.params);
+  console.log("get params:")
+  console.log(req.query);
 
   if (req.headers.offset === undefined)
     req.headers.offset = 0;
@@ -739,11 +741,7 @@ router.route('/auth/facebook').post(function(req,res) {
 });
 
 
-
-//router.route('/geo').get(function(req, ress) {
-//    resp_data = ["test"];
-
-router.route('/geo').get(function(req, req_response) {
+router.route('/locations').get(function(req, req_response) {
     FB.api('oauth/access_token', {
         client_id: keys.fb_client_id,
         client_secret: keys.fb_client_secret,
@@ -758,7 +756,7 @@ router.route('/geo').get(function(req, req_response) {
         FB.setAccessToken(res.access_token);
         FB.api('/search', 'GET', {
                 "type": "place",
-                "center": "40.425803,-86.9100602",
+                "center": req.query.lat+","+req.query.lon,
                 "distance": "5000",
                 "limit": "200"
             },
