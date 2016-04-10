@@ -197,7 +197,7 @@ localNewChallengesRoute.get(function(req, res) {
       res.send(err);
 
     User.findById(req.userid, function(err, user) {
-      if (err)
+      if (err || user == null)
         res.send(err);
 
       for (c of challenges.docs) {
