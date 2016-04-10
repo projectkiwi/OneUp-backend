@@ -432,8 +432,6 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
   Challenge.findById(req.params.challenge_id, function(err, challenge) {
     console.log("processing upload");
     console.log(req.file);
-    var extension = req.file.originalname.split('.').pop();
-    console.log("extension: "+originalname);
     if (err)
       res.send(err);
 
