@@ -197,7 +197,7 @@ localNewChallengesRoute.get(function(req, res) {
       res.send(err);
 
     User.findById(req.userid, function(err, user) {
-      if (err)
+      if (err || user == null)
         res.send(err);
 
       for (c of challenges.docs) {
@@ -519,11 +519,22 @@ attemptLikeRoute.post(function(req, res) {
         }
 
         attempt.save(function(err) {
-          user.save(function(err) {
-            challenge.save(function(err) {
-              res.json({ success: true });
+          if (err)
+            res.json({ success: false });
+          else {
+            user.save(function(err) {
+              if (err)
+                res.json({ success: false });
+              else {
+                challenge.save(function(err) {
+                  if (err)
+                    res.json({ success: false });
+
+                  res.json({ success: true });
+                });
+              }
             });
-          });
+          }
         });
       });
     });
@@ -555,77 +566,23 @@ userBookmarkRoute.post(function(req, res) {
     var index = user.bookmarks.indexOf(req.params.challenge_id);
 
     if (index == -1) {
-      // Add bookmark
       user.bookmarks.push(req.params.challenge_id);
       user.save(function(err) {
         if (err)
-          res.send(err);
-        else {
-          res.json({ success: true });
-        }
+          res.json({ success: false });
+
+        res.json({ success: true });
       });
     }
     else {
-      // Remove bookmark
       user.bookmarks.splice(index, 1);
       user.save(function(err) {
         if (err)
-          res.send(err);
-        else {
-          res.json({ success: true });
-        }
+          res.json({ success: false });
+          
+        res.json({ success: true });
       });
     }
-
-    /*Challenge.findById(req.params.challenge_id, function(err, challenge) {
-      if (err) 
-        res.send(err);
-
-      user.bookmarks.push(challenge._id);
-      user.save(function(err) {
-        if (err)
-          res.send(err);
-      });
-
-      res.json({ message: 'Bookmark Added!' });
-    });*/
-  });
-});
-/*
-// Route for /users/unbookmark/:challenge_id
-var userBookmarkRoute = router.route('/users/unbookmark/:challenge_id');
-
-// POST a user unbookmark
-userBookmarkRoute.post(function(req, res) {
-  User.findById(req.userid, function(err, user) {
-    if (err)
-      res.send(err);
-
-    Challenge.findById(req.params.challenge_id, function(err, challenge) {
-      if (err) 
-        res.send(err);
-
-      var index = user.bookmarks.indexOf(challenge._id);
-
-      user.bookmarks.splice(index, 1);
-      user.save(function(err) {
-        if (err)
-          res.send(err);
-      });
-
-      res.json({ message: 'Bookmark Removed!' });
-    });
-  });
-});
-*/
-var userBookmarksRoute = router.route('/users/bookmarks');
-
-userBookmarksRoute.get(function(req, res) {
-  User.findById(req.userid, function(err, user) {
-    if (err)
-      res.send(err);
-
-    res.json(user.bookmarks);
   });
 });
 
@@ -648,6 +605,17 @@ router.route('/me').put(function(req,res) {
     else {
       res.json(user);
     }
+  });
+});
+
+var userBookmarksRoute = router.route('/me/bookmarks');
+
+userBookmarksRoute.get(function(req, res) {
+  User.findById(req.userid, function(err, user) {
+    if (err)
+      res.send(err);
+
+    res.json(user.bookmarks);
   });
 });
 
