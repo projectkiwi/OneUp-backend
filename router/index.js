@@ -36,6 +36,7 @@ router.use(function(req, res, next) {
 
   var header_token = req.headers.token;
   var body_token = req.body.token;
+  var param_token = req.query.token;
   req.userid = null;
 
   if (header_token) {
@@ -48,6 +49,15 @@ router.use(function(req, res, next) {
   }
   else if (body_token) {
     var decoded = jwt.verify(body_token, 'secret'); 
+    //todo: error nicely if bad token;
+    req.userid = decoded.uid;
+    console.log("(body) Authenticated user! (" + req.userid + ")");
+    console.log('----');
+    next();
+  }
+  else if (param_token)
+  {
+    var decoded = jwt.verify(param_token, 'secret'); 
     //todo: error nicely if bad token;
     req.userid = decoded.uid;
     console.log("(body) Authenticated user! (" + req.userid + ")");
