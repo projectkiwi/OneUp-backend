@@ -8,7 +8,7 @@ The following **required** functionality is completed:
 
 #### User Story 2
 
-- [ ] Implement tabs for recent, popular, global - Jeremy 
+- [X] Implement tabs for recent, popular, global - Jeremy 
 
 #### User Story 3
 
@@ -37,7 +37,7 @@ The following **required** functionality is completed:
 
 #### User Story 9
 
-- [X] Build backend for bookmarks
+- [X] Build backend for bookmarks - Jeremy
 
 #### User Story 10
 

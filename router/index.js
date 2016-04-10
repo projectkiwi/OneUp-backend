@@ -126,6 +126,7 @@ challengesRoute.get(function(req, res) {
         var likedPrev = false;
         c.liked_top_attempt = false;
         c.liked_previous_attempt = false;
+        c.bookmarked_challenge = false;
 
         if (c.user_likes.indexOf(req.userid) != -1) {
           for (a of c.attempts) {
@@ -157,6 +158,10 @@ challengesRoute.get(function(req, res) {
                 res.send(err);
             });
           }
+        }
+
+        if (user.bookmarks.indexOf(c._id) != -1) {
+          c.bookmarked_challenge = true;
         }
 
         c.save(function(err) {
@@ -197,6 +202,7 @@ localNewChallengesRoute.get(function(req, res) {
         var likedPrev = false;
         c.liked_top_attempt = false;
         c.liked_previous_attempt = false;
+        c.bookmarked_challenge = false;
 
         if (c.user_likes.indexOf(req.userid) != -1) {
           for (a of c.attempts) {
@@ -228,6 +234,10 @@ localNewChallengesRoute.get(function(req, res) {
                 res.send(err);
             });
           }
+        }
+
+        if (user.bookmarks.indexOf(c._id) != -1) {
+          c.bookmarked_challenge = true;
         }
 
         c.save(function(err) {
@@ -268,6 +278,7 @@ localPopularChallengesRoute.get(function(req, res) {
         var likedPrev = false;
         c.liked_top_attempt = false;
         c.liked_previous_attempt = false;
+        c.bookmarked_challenge = false;
 
         if (c.user_likes.indexOf(req.userid) != -1) {
           for (a of c.attempts) {
@@ -299,6 +310,10 @@ localPopularChallengesRoute.get(function(req, res) {
                 res.send(err);
             });
           }
+        }
+
+        if (user.bookmarks.indexOf(c._id) != -1) {
+          c.bookmarked_challenge = true;
         }
 
         c.save(function(err) {
