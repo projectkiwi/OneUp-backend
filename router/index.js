@@ -482,7 +482,41 @@ attemptLikeRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    attempt.user_likes.push(req.userid);
+    User.findById(req.userid, function(err, user) {
+      if (err)
+        res.send(err);
+
+      Challenge.findById(attempt.challenge, function(err, challenge) {
+        if (err)
+          res.send(err);
+
+        if (attempt.user_likes.indexOf(user) != -1) {
+          // unlike
+        }
+        else {
+          // like
+          attempt.user_likes.push(req.userid);
+          attempt.like_total += 1;
+
+          user.liked_challenges.push(challenge);
+          
+          challenge.challenge_likes += 1;
+          challenge.user_likes.push(req.userid);
+        }
+
+        challenge.save(function(err) {
+          if (err)
+            res.send(err);
+        });
+      });
+
+      user.save(function(err) {
+        if (err)
+          res.send(err);
+      });
+    });
+
+    /*attempt.user_likes.push(req.userid);
     attempt.like_total += 1;
     
     Challenge.findById(attempt.challenge, function(err, challenge) {
@@ -503,7 +537,7 @@ attemptLikeRoute.post(function(req, res) {
         if (err)
           res.send(err);
       });
-    });
+    });*/
 
     attempt.save(function(err) {
       if (err) {
@@ -511,7 +545,7 @@ attemptLikeRoute.post(function(req, res) {
       }
     });
 
-    res.json({ message: 'Like Recorded!' });
+    res.json({ message: 'Like/Unlike Recorded!' });
   });
 });
 
