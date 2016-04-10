@@ -1,5 +1,5 @@
 node_modules
 .DS_Store
-*.sublime
+.sublime-workspace
 keys.js
 uploads/challenge_attempts
