@@ -492,11 +492,16 @@ attemptLikeRoute.post(function(req, res) {
         if (err)
           res.send(err);
 
-        if (attempt.user_likes.indexOf(user) != -1) {
-          // unlike
+        if (attempt.user_likes.indexOf(user._id) != -1) {
+          attempt.user_likes.splice(attempt.user_likes.indexOf(req.userid, 1));
+          attempt.like_total -= 1;
+
+          user.liked_challenges.splice(user.liked_challenges.indexOf(challenge._id), 1);
+
+          challenge.challenge_likes -= 1;
+          challenge.user_likes.splice(challenge.user_likes.indexOf(req.userid), 1);
         }
         else {
-          // like
           attempt.user_likes.push(req.userid);
           attempt.like_total += 1;
 
@@ -506,48 +511,16 @@ attemptLikeRoute.post(function(req, res) {
           challenge.user_likes.push(req.userid);
         }
 
-        challenge.save(function(err) {
-          if (err)
-            res.send(err);
+        attempt.save(function(err) {
+          user.save(function(err) {
+            challenge.save(function(err) {
+              res.json({ message: 'Success' });
+            });
+          });
         });
-      });
 
-      user.save(function(err) {
-        if (err)
-          res.send(err);
       });
     });
-
-    /*attempt.user_likes.push(req.userid);
-    attempt.like_total += 1;
-    
-    Challenge.findById(attempt.challenge, function(err, challenge) {
-      if (err)
-        res.send(err);
-
-      User.findById(req.userid, function(err, user) {
-        user.liked_challenges.push(challenge);
-        user.save(function(err) {
-          if (err)
-            res.send(err);
-        });
-      });
-
-      challenge.challenge_likes += 1;
-      challenge.user_likes.push(req.userid);
-      challenge.save(function(err) {
-        if (err)
-          res.send(err);
-      });
-    });*/
-
-    attempt.save(function(err) {
-      if (err) {
-        res.send(err);
-      }
-    });
-
-    res.json({ message: 'Like/Unlike Recorded!' });
   });
 });
 
