@@ -23,7 +23,7 @@ The following **required** functionality is completed:
 
 #### User Story 5
 
-- [ ] As a user, I would like to be identified by a username - Nicky
+- [X] As a user, I would like to be identified by a username - Nicky
 - [X] As a user, I want to be able to create an account - Nicky
 - [X] As a user, I want my account to be secure - Nicky
 

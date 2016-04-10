@@ -107,7 +107,7 @@ var challengesRoute = router.route('/challenges');
 // GET global challenges
 challengesRoute.get(function(req, res) {
   var options = {
-    populate: 'attempts record_holders',
+    populate: 'attempts record_holders location',
     sort: { 
       challenge_likes: -1,
       updated_on: -1
@@ -183,7 +183,7 @@ var localNewChallengesRoute = router.route('/challenges/local/new');
 // GET local new challenges
 localNewChallengesRoute.get(function(req, res) {
   var options = {
-    populate: 'attempts record_holders',
+    populate: 'attempts record_holders location',
     sort: {
       updated_on: -1,
       challenge_likes: -1
@@ -259,7 +259,7 @@ var localPopularChallengesRoute = router.route('/challenges/local/popular');
 // GET local popular challenges
 localPopularChallengesRoute.get(function(req, res) {
   var options = {
-    populate: 'attempts record_holders',
+    populate: 'attempts record_holders location',
     sort: { 
       challenge_likes: -1,
       updated_on: -1
@@ -338,6 +338,7 @@ challengesRoute.post(function(req, res) {
   challenge.categories = req.body.categories;
   challenge.created_on = Date.now();
   challenge.updated_on = Date.now();
+  challenge.location = req.body.location_id;
   challenge.save(function(err) {
     if (err)
       res.send(err);
@@ -407,7 +408,7 @@ challengeDetailRoute.get(function(req, res) {
 
       res.json(c);
     });
-  }).populate('attempts record_holders');
+  }).populate('attempts record_holders location');
 });
 
 // Route for /challenges/:challenge_id/attempts
@@ -416,10 +417,11 @@ var challengeAttemptRoute = router.route('/challenges/:challenge_id/attempts');
 // POST submit a challenge attempt
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/challenge_attempts')
+    cb(null, 'uploads/challenge_attempts');
   },
   filename: function (req, file, cb) {
-    cb(null, req.params.challenge_id + '_' + req.userid + '_' + Date.now() + '_orig.mp4')
+    var extension = file.filename.split('.').pop();
+    cb(null, req.params.challenge_id + '_' + req.userid + '_' + Date.now() + '_orig.'+extension);
   }
 })
 
@@ -427,6 +429,9 @@ var upload = multer({ storage: storage });
 
 challengeAttemptRoute.post(upload.single('video'), function(req, res) {
   Challenge.findById(req.params.challenge_id, function(err, challenge) {
+    console.log(req.file);
+    var extension = req.file.filename.split('.').pop();
+    console.log("extension: "+extension);
     if (err)
       res.send(err);
 
