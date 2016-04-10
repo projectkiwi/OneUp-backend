@@ -416,10 +416,11 @@ var challengeAttemptRoute = router.route('/challenges/:challenge_id/attempts');
 // POST submit a challenge attempt
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/challenge_attempts')
+    cb(null, 'uploads/challenge_attempts');
   },
   filename: function (req, file, cb) {
-    cb(null, req.params.challenge_id + '_' + req.userid + '_' + Date.now() + '_orig.mp4')
+    var extension = file.filename.split('.').pop();
+    cb(null, req.params.challenge_id + '_' + req.userid + '_' + Date.now() + '_orig.'+extension);
   }
 })
 
@@ -427,6 +428,9 @@ var upload = multer({ storage: storage });
 
 challengeAttemptRoute.post(upload.single('video'), function(req, res) {
   Challenge.findById(req.params.challenge_id, function(err, challenge) {
+    console.log(req.file);
+    var extension = req.file.filename.split('.').pop();
+    console.log("extension: "+extension);
     if (err)
       res.send(err);
 
