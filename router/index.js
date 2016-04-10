@@ -514,11 +514,10 @@ attemptLikeRoute.post(function(req, res) {
         attempt.save(function(err) {
           user.save(function(err) {
             challenge.save(function(err) {
-              res.json({ message: 'Success' });
+              res.json({ success: true });
             });
           });
         });
-
       });
     });
   });
