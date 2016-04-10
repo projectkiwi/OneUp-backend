@@ -488,82 +488,44 @@ attemptLikeRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    attempt.user_likes.push(req.userid);
-    attempt.like_total += 1;
-    
-    Challenge.findById(attempt.challenge, function(err, challenge) {
+    User.findById(req.userid, function(err, user) {
       if (err)
         res.send(err);
 
-      User.findById(req.userid, function(err, user) {
-        user.liked_challenges.push(challenge);
-        user.save(function(err) {
-          if (err)
-            res.send(err);
-        });
-      });
-
-      challenge.challenge_likes += 1;
-      challenge.user_likes.push(req.userid);
-      challenge.save(function(err) {
+      Challenge.findById(attempt.challenge, function(err, challenge) {
         if (err)
           res.send(err);
-      });
-    });
 
-    attempt.save(function(err) {
-      if (err) {
-        res.send(err);
-      }
-    });
+        if (attempt.user_likes.indexOf(user._id) != -1) {
+          attempt.user_likes.splice(attempt.user_likes.indexOf(req.userid, 1));
+          attempt.like_total -= 1;
 
-    res.json({ message: 'Like Recorded!' });
-  });
-});
+          user.liked_challenges.splice(user.liked_challenges.indexOf(challenge._id), 1);
 
-// Route for /challenges/unlike/:attempt_id
-var attemptUnlikeRoute = router.route('/challenges/unlike/:attempt_id');
+          challenge.challenge_likes -= 1;
+          challenge.user_likes.splice(challenge.user_likes.indexOf(req.userid), 1);
+        }
+        else {
+          attempt.user_likes.push(req.userid);
+          attempt.like_total += 1;
 
-// POST unlike an attempt
-attemptUnlikeRoute.post(function(req, res) {
-  Attempt.findById(req.params.attempt_id, function(err, attempt) {
-    if (err)
-      res.send(err);
-    
-    attempt.user_likes.splice(attempt.user_likes.indexOf(req.userid, 1));
-    attempt.like_total -= 1;
-    
-    Challenge.findById(attempt.challenge, function(err, challenge) {
-      if (err)
-        res.send(err);
+          user.liked_challenges.push(challenge);
+          
+          challenge.challenge_likes += 1;
+          challenge.user_likes.push(req.userid);
+        }
 
-      User.findById(req.userid, function(err, user) {
-        user.liked_challenges.splice(user.liked_challenges.indexOf(challenge._id), 1);
-        user.save(function(err) {
-          if (err)
-            res.send(err);
+        attempt.save(function(err) {
+          user.save(function(err) {
+            challenge.save(function(err) {
+              res.json({ success: true });
+            });
+          });
         });
       });
-
-      challenge.challenge_likes -= 1;
-      challenge.user_likes.splice(challenge.user_likes.indexOf(req.userid), 1);
-      challenge.save(function(err) {
-        if (err)
-          res.send(err);
-      });
     });
-
-    attempt.save(function(err) {
-      if (err) {
-        res.send(err);
-      }
-    });
-
-    res.json({ message: 'Unlike Recorded!' });
   });
 });
-
-
 
 // Route for /users
 var usersRoute = router.route('/users');
@@ -583,12 +545,36 @@ var userBookmarkRoute = router.route('/users/bookmark/:challenge_id');
 
 // POST a user bookmark
 userBookmarkRoute.post(function(req, res) {
-  // Fix user already found
   User.findById(req.userid, function(err, user) {
     if (err)
       res.send(err);
 
-    Challenge.findById(req.params.challenge_id, function(err, challenge) {
+    var index = user.bookmarks.indexOf(req.params.challenge_id);
+
+    if (index == -1) {
+      // Add bookmark
+      user.bookmarks.push(req.params.challenge_id);
+      user.save(function(err) {
+        if (err)
+          res.send(err);
+        else {
+          res.json({ success: true });
+        }
+      });
+    }
+    else {
+      // Remove bookmark
+      user.bookmarks.splice(index, 1);
+      user.save(function(err) {
+        if (err)
+          res.send(err);
+        else {
+          res.json({ success: true });
+        }
+      });
+    }
+
+    /*Challenge.findById(req.params.challenge_id, function(err, challenge) {
       if (err) 
         res.send(err);
 
@@ -599,16 +585,15 @@ userBookmarkRoute.post(function(req, res) {
       });
 
       res.json({ message: 'Bookmark Added!' });
-    });
+    });*/
   });
 });
-
+/*
 // Route for /users/unbookmark/:challenge_id
 var userBookmarkRoute = router.route('/users/unbookmark/:challenge_id');
 
 // POST a user unbookmark
 userBookmarkRoute.post(function(req, res) {
-  // Fix user already found
   User.findById(req.userid, function(err, user) {
     if (err)
       res.send(err);
@@ -629,7 +614,7 @@ userBookmarkRoute.post(function(req, res) {
     });
   });
 });
-
+*/
 var userBookmarksRoute = router.route('/users/bookmarks');
 
 userBookmarksRoute.get(function(req, res) {

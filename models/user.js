@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-var UserSchema   = new mongoose.Schema({
+var UserSchema = new mongoose.Schema({
   username: String,
   facebook_id: String,
   email: String,

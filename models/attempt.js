@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-var AttemptSchema   = new mongoose.Schema({
+var AttemptSchema = new mongoose.Schema({
   challenge : { type: mongoose.Schema.ObjectId, ref: 'Challenge' },
   description: { type: String, default: 'Attempt Description' }, 
   user: { type: mongoose.Schema.ObjectId, ref: 'User' },
