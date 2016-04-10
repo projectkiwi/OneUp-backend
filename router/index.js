@@ -183,7 +183,7 @@ var localNewChallengesRoute = router.route('/challenges/local/new');
 // GET local new challenges
 localNewChallengesRoute.get(function(req, res) {
   var options = {
-    populate: 'attempts',
+    populate: 'attempts record_holders',
     sort: {
       updated_on: -1,
       challenge_likes: -1
@@ -259,7 +259,7 @@ var localPopularChallengesRoute = router.route('/challenges/local/popular');
 // GET local popular challenges
 localPopularChallengesRoute.get(function(req, res) {
   var options = {
-    populate: 'attempts',
+    populate: 'attempts record_holders',
     sort: { 
       challenge_likes: -1,
       updated_on: -1
@@ -351,11 +351,62 @@ var challengeDetailRoute = router.route('/challenges/:challenge_id');
 
 // GET challenge details
 challengeDetailRoute.get(function(req, res) {
-  Challenge.findById(req.params.challenge_id, function(err, challenge) {
+  Challenge.findById(req.params.challenge_id, function(err, c) {
     if (err)
       res.send(err);
 
-    res.json(challenge);
+    User.findById(req.userid, function(err, user) {
+      if (err)
+        res.send(err);
+
+      var likedPrev = false;
+      c.liked_top_attempt = false;
+      c.liked_previous_attempt = false;
+      c.bookmarked_challenge = false;
+
+      if (c.user_likes.indexOf(req.userid) != -1) {
+        for (a of c.attempts) {
+          if (a.user_likes.indexOf(req.userid) != -1) {
+            a.liked_attempt = true;
+
+            if (c.attempts.indexOf(a) == c.attempts.length - 1) {
+              c.liked_top_attempt = true;
+            }
+            else {
+              c.liked_previous_attempt = true;
+            }
+          }
+          else {
+            a.liked_attempt = false;
+          }
+
+          a.save(function(err) {
+            if (err)
+              res.send(err);
+          });
+        }
+      }
+      else {
+        for (a of c.attempts) {
+          a.liked_attempt = false;
+          a.save(function(err) {
+            if (err)
+              res.send(err);
+          });
+        }
+      }
+
+      if (user.bookmarks.indexOf(c._id) != -1) {
+        c.bookmarked_challenge = true;
+      }
+
+      c.save(function(err) {
+        if (err)
+          res.send(err);
+      });
+
+      res.json(c);
+    });
   }).populate('attempts record_holders');
 });
 
