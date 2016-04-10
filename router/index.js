@@ -42,29 +42,47 @@ router.use(function(req, res, next) {
   req.userid = null;
 
   if (header_token) {
-    var decoded = jwt.verify(header_token, 'secret'); 
-    //todo: error nicely if bad token;
-    req.userid = decoded.uid;
-    console.log("(header) Authenticated user! (" + req.userid + ")");
-    console.log('----');
-    next();
+    var decoded = jwt.verify(header_token, 'secret');
+    User.findById(decoded.uid, function(err, user) {
+      if(err || user==null)
+        res.json("token decoded but user doesn't exist");
+      else
+      {
+        req.userid = decoded.uid;
+        console.log("(header) Authenticated user! (" + req.userid + ")");
+        console.log('----');
+        next();
+      }
+    });     
   }
   else if (body_token) {
     var decoded = jwt.verify(body_token, 'secret'); 
-    //todo: error nicely if bad token;
-    req.userid = decoded.uid;
-    console.log("(body) Authenticated user! (" + req.userid + ")");
-    console.log('----');
-    next();
+    User.findById(decoded.uid, function(err, user) {
+      if(err || user==null)
+        res.json("token decoded but user doesn't exist");
+      else
+      {
+        req.userid = decoded.uid;
+        console.log("(header) Authenticated user! (" + req.userid + ")");
+        console.log('----');
+        next();
+      }
+    });
   }
   else if (param_token)
   {
     var decoded = jwt.verify(param_token, 'secret'); 
-    //todo: error nicely if bad token;
-    req.userid = decoded.uid;
-    console.log("(body) Authenticated user! (" + req.userid + ")");
-    console.log('----');
-    next();
+    User.findById(decoded.uid, function(err, user) {
+      if(err || user==null)
+        res.json("token decoded but user doesn't exist");
+      else
+      {
+        req.userid = decoded.uid;
+        console.log("(header) Authenticated user! (" + req.userid + ")");
+        console.log('----');
+        next();
+      }
+    });
   }
   else {
     console.log('----');
