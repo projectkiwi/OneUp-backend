@@ -338,6 +338,7 @@ challengesRoute.post(function(req, res) {
   challenge.categories = req.body.categories;
   challenge.created_on = Date.now();
   challenge.updated_on = Date.now();
+  challenge.location = req.body.location_id;
   challenge.save(function(err) {
     if (err)
       res.send(err);
