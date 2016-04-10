@@ -171,7 +171,7 @@ var localNewChallengesRoute = router.route('/challenges/local/new');
 // GET local new challenges
 localNewChallengesRoute.get(function(req, res) {
   var options = {
-    populate: 'attempts',
+    populate: 'attempts record_holders',
     sort: {
       updated_on: -1,
       challenge_likes: -1
@@ -247,7 +247,7 @@ var localPopularChallengesRoute = router.route('/challenges/local/popular');
 // GET local popular challenges
 localPopularChallengesRoute.get(function(req, res) {
   var options = {
-    populate: 'attempts',
+    populate: 'attempts record_holders',
     sort: { 
       challenge_likes: -1,
       updated_on: -1
