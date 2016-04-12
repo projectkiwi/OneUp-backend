@@ -43,11 +43,11 @@ router.use(function(req, res, next) {
 
   if (header_token) {
     var decoded = jwt.verify(header_token, 'secret');
+    
     User.findById(decoded.uid, function(err, user) {
-      if(err || user==null)
-        res.json("token decoded but user doesn't exist");
-      else
-      {
+      if (err || user == null)
+        res.json("Token decoded but user doesn't exist.");
+      else {
         req.userid = decoded.uid;
         console.log("(header) Authenticated user! (" + req.userid + ")");
         console.log('----');
@@ -58,10 +58,9 @@ router.use(function(req, res, next) {
   else if (body_token) {
     var decoded = jwt.verify(body_token, 'secret'); 
     User.findById(decoded.uid, function(err, user) {
-      if(err || user==null)
-        res.json("token decoded but user doesn't exist");
-      else
-      {
+      if (err || user == null)
+        res.json("Token decoded but user doesn't exist.");
+      else {
         req.userid = decoded.uid;
         console.log("(header) Authenticated user! (" + req.userid + ")");
         console.log('----');
@@ -72,11 +71,11 @@ router.use(function(req, res, next) {
   else if (param_token)
   {
     var decoded = jwt.verify(param_token, 'secret'); 
+    
     User.findById(decoded.uid, function(err, user) {
-      if(err || user==null)
-        res.json("token decoded but user doesn't exist");
-      else
-      {
+      if (err || user == null)
+        res.json("Token decoded but user doesn't exist.");
+      else {
         req.userid = decoded.uid;
         console.log("(header) Authenticated user! (" + req.userid + ")");
         console.log('----');
@@ -454,12 +453,6 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
       res.send(err);
 
     User.findById(req.userid, function(err, user) {
-      user.records.push(challenge);
-      user.save(function(err) {
-        if (err)
-          res.send(err);
-      });
-
       var attempt = new Attempt();
 
       var opts = {
@@ -483,16 +476,22 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
       attempt.save(function(err) {
         if (err)
           res.send(err);
-      });
 
-      challenge.updated_on = Date.now();
-      challenge.attempts.push(attempt);
-      challenge.save(function(err) {
-        if (err)
-          res.send(err);
-      });
+        challenge.updated_on = Date.now();
+        challenge.attempts.push(attempt);
+        challenge.save(function(err) {
+          if (err)
+            res.send(err);
 
-      res.json({ message: 'Attempt Created!', data: attempt }); 
+          user.records.push(challenge);
+          user.save(function(err) {
+            if (err)
+              res.send(err);
+
+            res.json({ message: 'Attempt Created!', data: attempt });
+          });   
+        });
+      });
     });
   });
 });
