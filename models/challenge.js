@@ -13,7 +13,6 @@ var ChallengeSchema = new mongoose.Schema({
   updated_on: { type: Date },
   expires_at: { type: Date, default: Date.now },
   challenge_likes: { type: Number, default: 0 },
-  record_holders: [{ type: mongoose.Schema.ObjectId, ref: 'User'}],
   liked_top_attempt: Boolean,
   liked_previous_attempt: Boolean,
   bookmarked_challenge: Boolean
