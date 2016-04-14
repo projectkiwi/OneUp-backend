@@ -767,7 +767,7 @@ router.route('/locations').get(function(req, req_response) {
 
                 Promise.all(promises)
                 .then(function (res) {
-                  req_response.json(res);
+                  req_response.json({'locations': res});
                 })
             }
         );
