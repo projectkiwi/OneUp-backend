@@ -17,12 +17,17 @@ The following **required** functionality is completed:
 
 #### User Story 6
 
+- [ ] Implement Notifications - Nicky
 - [ ] Implement Push Notifications - Nicky
 
 #### User Story 7
 
 - [ ] Fix all the bugs - Jeremy, Nicky
 - [ ] Refactoring - Jeremy, Nicky
+
+#### User Story 8
+
+- [ ] As a user, I would like to be able to quickly distinguish challenges I’ve topped in the feed - Jeremy
 
 #### User Story 9
 
