@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"comment",
+				"commentSchema"
+			],
+			[
 				"inde",
 				"indexOf"
 			],
@@ -43,15 +47,7 @@
 			"file": "router/index.js",
 			"settings":
 			{
-				"buffer_size": 19282,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "models/user.js",
-			"settings":
-			{
-				"buffer_size": 424,
+				"buffer_size": 19891,
 				"line_ending": "Unix"
 			}
 		},
@@ -59,15 +55,15 @@
 			"file": "models/challenge.js",
 			"settings":
 			{
-				"buffer_size": 778,
+				"buffer_size": 834,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "server.js",
+			"file": "models/user.js",
 			"settings":
 			{
-				"buffer_size": 939,
+				"buffer_size": 507,
 				"line_ending": "Unix"
 			}
 		}
@@ -115,21 +111,22 @@
 	],
 	"file_history":
 	[
-		"/C/Users/Jeremy Craven/.mongorc.js",
-		"/C/Dev/Projects/OneUp/OneUp-backend/models/attempt.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/server.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/challenge.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/user.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/comment.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/keys.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/README.md",
+		"/C/Users/Jeremy Craven/.mongorc.js",
+		"/C/Dev/Projects/OneUp/OneUp-backend/models/attempt.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/.gitignore",
 		"/C/Dev/Projects/OneUp/OneUp-backend/uploads/challenge_attempts/5706a4b49480af882777c3c0_57083584f9f746900b1e07c9_1460227760711_orig.mp4",
 		"/C/Dev/Projects/OneUp/OneUp-backend/node_modules/gify/index.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/uploads/challenge_attempts/5706a4b49480af882777c3c0_57083584f9f746900b1e07c9_1460228772636.gif",
 		"/C/Dev/Projects/OneUp/OneUp-backend/uploads/challenge_attempts/5706a4b49480af882777c3c0_57083584f9f746900b1e07c9_1460226848245_orig.mp4",
-		"/C/Dev/Projects/OneUp/OneUp-backend/server.js",
-		"/C/Dev/Projects/OneUp/OneUp-backend/keys.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/location.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/router/index.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/challengegroup.js",
-		"/C/Dev/Projects/OneUp/OneUp-backend/models/comment.js",
 		"/C/Dev/Projects/OneUp/OneUp-backend/models/vote.js",
 		"/C/Users/Jeremy Craven/OneDrive/Education/4th Semester/CS 252/Code/Lab 3/Makefile",
 		"/C/Users/Jeremy Craven/OneDrive/Education/4th Semester/CS 252/Code/Lab 3/command.cc",
@@ -206,7 +203,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -215,15 +212,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 19282,
+						"buffer_size": 19891,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								8699,
-								8699
+								13034,
+								13034
 							]
 						],
 						"settings":
@@ -233,55 +230,27 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 8414.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "models/user.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 424,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 14566.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
+					"buffer": 1,
 					"file": "models/challenge.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 778,
+						"buffer_size": 834,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								570,
-								570
+								205,
+								205
 							]
 						],
 						"settings":
@@ -294,24 +263,24 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "server.js",
+					"buffer": 2,
+					"file": "models/user.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 939,
+						"buffer_size": 507,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								276,
+								276
 							]
 						],
 						"settings":
@@ -322,7 +291,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 1,
 					"type": "text"
 				}
 			]

@@ -349,14 +349,19 @@ localPopularChallengesRoute.get(function(req, res) {
 // POST create a new challenge
 challengesRoute.post(function(req, res) {
   var challenge = new Challenge();
-  challenge.name = req.body.name;
+
+  // Required
   challenge.user = req.userid;
+  challenge.name = req.body.name;
   challenge.description = req.body.description;
-  challenge.pattern = req.body.pattern;
   challenge.categories = req.body.categories;
+  challenge.location = req.body.location_id;
   challenge.created_on = Date.now();
   challenge.updated_on = Date.now();
-  challenge.location = req.body.location_id;
+
+  // Optional
+  challenge.pattern = req.body.pattern;
+  
   challenge.save(function(err) {
     if (err)
       res.send(err);
@@ -538,7 +543,11 @@ attemptLikeRoute.post(function(req, res) {
         if (err)
           res.send(err);
 
+        var like;
+
         if (attempt.user_likes.indexOf(user._id) != -1) {
+          like = false;
+
           attempt.user_likes.splice(attempt.user_likes.indexOf(req.userid, 1));
           attempt.like_total -= 1;
 
@@ -548,6 +557,8 @@ attemptLikeRoute.post(function(req, res) {
           challenge.user_likes.splice(challenge.user_likes.indexOf(req.userid), 1);
         }
         else {
+          like = true;
+
           attempt.user_likes.push(req.userid);
           attempt.like_total += 1;
 
@@ -569,7 +580,7 @@ attemptLikeRoute.post(function(req, res) {
                   if (err)
                     res.json({ success: false });
 
-                  res.json({ success: true });
+                  res.json({ success: true, like: like });
                 });
               }
             });
@@ -610,7 +621,7 @@ userBookmarkRoute.post(function(req, res) {
         if (err)
           res.json({ success: false });
 
-        res.json({ success: true });
+        res.json({ success: true, bookmark: true });
       });
     }
     else {
@@ -619,7 +630,7 @@ userBookmarkRoute.post(function(req, res) {
         if (err)
           res.json({ success: false });
           
-        res.json({ success: true });
+        res.json({ success: true, bookmark: false });
       });
     }
   });
@@ -746,7 +757,7 @@ router.route('/locations').get(function(req, req_response) {
                             resolve(location);
                         }
 
-                        
+                       
                     });
 
                       });
