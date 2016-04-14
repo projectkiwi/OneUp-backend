@@ -4,44 +4,29 @@
 
 The following **required** functionality is completed:
 
-### Sprint 2
+### Sprint 3
 
 #### User Story 2
-
-- [X] Implement tabs for recent, popular, global - Jeremy 
-
-#### User Story 3
-
-- [X] Create API endpoint to fetch popular challenges - Jeremy
-- [X] Express an opinion on past records by liking - Jeremy
-- [ ] Express an opinion on past records by commenting - Jeremy
-
-#### User Story 4
 
 - [ ] Link challenge locations to the map view - Nicky
 - [ ] In list view, filter challenges based on a location radius - Nicky
 
-#### User Story 5
+#### User Story 3
 
-- [X] As a user, I would like to be identified by a username - Nicky
-- [X] As a user, I want to be able to create an account - Nicky
-- [X] As a user, I want my account to be secure - Nicky
+- [ ] Express an opinion on past records by commenting - Jeremy
 
 #### User Story 6
 
-- [X] As a user, I would like to be able to view a list of my records held - Jeremy
+- [ ] Implement Push Notifications - Nicky
 
-#### User Story 8
+#### User Story 7
 
-- [X] Implement timeline of past record holders - Jeremy
+- [ ] Fix all the bugs - Jeremy, Nicky
+- [ ] Refactoring - Jeremy, Nicky
 
 #### User Story 9
 
-- [X] Build backend for bookmarks - Jeremy
-
-#### User Story 10
-
-- [X] Create API Endpoint to create challenge - Jeremy
+- [ ] Google Analytics - Jeremy, Nicky
 
 ## License
 
