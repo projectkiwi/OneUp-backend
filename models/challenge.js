@@ -3,7 +3,8 @@ var mongoosePaginate = require('mongoose-paginate');
 
 var ChallengeSchema = new mongoose.Schema({
   name: String,
-  attempts : [{ type: mongoose.Schema.ObjectId, ref: 'Attempt' }],
+  user: { type: mongoose.Schema.ObjectId, ref: 'User' },
+  attempts: [{ type: mongoose.Schema.ObjectId, ref: 'Attempt' }],
   location: { type: mongoose.Schema.ObjectId, ref: 'Location' },
   user_likes: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   description: String,

@@ -350,6 +350,7 @@ localPopularChallengesRoute.get(function(req, res) {
 challengesRoute.post(function(req, res) {
   var challenge = new Challenge();
   challenge.name = req.body.name;
+  challenge.user = req.userid;
   challenge.description = req.body.description;
   challenge.pattern = req.body.pattern;
   challenge.categories = req.body.categories;
@@ -360,8 +361,28 @@ challengesRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    res.json({ message: 'Challenge added!', data: challenge });
+    User.findById(req.userid, function(err, user) {
+      if (err)
+        res.send(err);
+
+      if (user.associated_challenges.indexOf(challenge._id) == -1) {
+        user.associated_challenges.push(challenge._id);
+
+        user.save(function(err) {
+          if (err)
+            res.send(err);
+
+          res.json({ message: 'Challenge added!', data: challenge });
+        });
+      }
+      else {
+        res.json({ message: 'Challenge added!', data: challenge });
+      }
+    });
   });
+
+  
+  
 });
 
 // Route for /challenges/:challenge_id
@@ -482,6 +503,10 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
         challenge.save(function(err) {
           if (err)
             res.send(err);
+
+          if (user.associated_challenges.indexOf(challenge._id) == -1) {
+            user.associated_challenges.push(challenge._id);
+          }
 
           user.records.push(challenge);
           user.save(function(err) {
@@ -696,7 +721,7 @@ router.route('/locations').get(function(req, req_response) {
         FB.setAccessToken(res.access_token);
         FB.api('/search', 'GET', {
                 "type": "place",
-                "center": req.query.lat+","+req.query.lon,
+                "center": req.query.lat + "," + req.query.lon,
                 "distance": "5000",
                 "limit": "200"
             },
