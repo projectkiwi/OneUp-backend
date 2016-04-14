@@ -111,7 +111,7 @@ router.route('/').get(function(req, res) {
         methods.push(s.method);
       });
 
-      table.push([methods, r.route.path,JSON.stringify(r.keys)]);
+      table.push([methods, r.route.path, JSON.stringify(r.keys)]);
     }
   });
 
@@ -216,56 +216,6 @@ challengesRoute.get(function(req, res) {
           res.json(challenges);
         }
       });
-      /*
-      for (c of challenges.docs) {
-        var likedPrev = false;
-        c.liked_top_attempt = false;
-        c.liked_previous_attempt = false;
-        c.bookmarked_challenge = false;
-
-        if (c.user_likes.indexOf(req.userid) != -1) {
-          for (a of c.attempts) {
-            if (a.user_likes.indexOf(req.userid) != -1) {
-              a.liked_attempt = true;
-
-              if (c.attempts.indexOf(a) == c.attempts.length - 1) {
-                c.liked_top_attempt = true;
-              }
-              else {
-                c.liked_previous_attempt = true;
-              }
-            }
-            else {
-              a.liked_attempt = false;
-            }
-
-            a.save(function(err) {
-              if (err)
-                res.send(err);
-            });
-          }
-        }
-        else {
-          for (a of c.attempts) {
-            a.liked_attempt = false;
-            a.save(function(err) {
-              if (err)
-                res.send(err);
-            });
-          }
-        }
-
-        if (user.bookmarks.indexOf(c._id) != -1) {
-          c.bookmarked_challenge = true;
-        }
-
-        c.save(function(err) {
-          if (err)
-            res.send(err);
-        });
-      }
-
-      res.json(challenges);*/
     });
   });
 });
@@ -467,6 +417,7 @@ localPopularChallengesRoute.get(function(req, res) {
           challenges.success = true;
           res.json(challenges);
         }
+      });
     });
   });
 });
