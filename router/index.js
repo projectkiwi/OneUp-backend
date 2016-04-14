@@ -43,11 +43,11 @@ router.use(function(req, res, next) {
 
   if (header_token) {
     var decoded = jwt.verify(header_token, 'secret');
+    
     User.findById(decoded.uid, function(err, user) {
-      if(err || user==null)
-        res.json("token decoded but user doesn't exist");
-      else
-      {
+      if (err || user == null)
+        res.json("Token decoded but user doesn't exist.");
+      else {
         req.userid = decoded.uid;
         console.log("(header) Authenticated user! (" + req.userid + ")");
         console.log('----');
@@ -58,10 +58,9 @@ router.use(function(req, res, next) {
   else if (body_token) {
     var decoded = jwt.verify(body_token, 'secret'); 
     User.findById(decoded.uid, function(err, user) {
-      if(err || user==null)
-        res.json("token decoded but user doesn't exist");
-      else
-      {
+      if (err || user == null)
+        res.json("Token decoded but user doesn't exist.");
+      else {
         req.userid = decoded.uid;
         console.log("(header) Authenticated user! (" + req.userid + ")");
         console.log('----');
@@ -72,11 +71,11 @@ router.use(function(req, res, next) {
   else if (param_token)
   {
     var decoded = jwt.verify(param_token, 'secret'); 
+    
     User.findById(decoded.uid, function(err, user) {
-      if(err || user==null)
-        res.json("token decoded but user doesn't exist");
-      else
-      {
+      if (err || user == null)
+        res.json("Token decoded but user doesn't exist.");
+      else {
         req.userid = decoded.uid;
         console.log("(header) Authenticated user! (" + req.userid + ")");
         console.log('----');
@@ -125,7 +124,7 @@ var challengesRoute = router.route('/challenges');
 // GET global challenges
 challengesRoute.get(function(req, res) {
   var options = {
-    populate: 'attempts record_holders location',
+    populate: 'attempts location',
     sort: { 
       challenge_likes: -1,
       updated_on: -1
@@ -201,7 +200,7 @@ var localNewChallengesRoute = router.route('/challenges/local/new');
 // GET local new challenges
 localNewChallengesRoute.get(function(req, res) {
   var options = {
-    populate: 'attempts record_holders location',
+    populate: 'attempts location',
     sort: {
       updated_on: -1,
       challenge_likes: -1
@@ -277,7 +276,7 @@ var localPopularChallengesRoute = router.route('/challenges/local/popular');
 // GET local popular challenges
 localPopularChallengesRoute.get(function(req, res) {
   var options = {
-    populate: 'attempts record_holders location',
+    populate: 'attempts location',
     sort: { 
       challenge_likes: -1,
       updated_on: -1
@@ -351,6 +350,7 @@ localPopularChallengesRoute.get(function(req, res) {
 challengesRoute.post(function(req, res) {
   var challenge = new Challenge();
   challenge.name = req.body.name;
+  challenge.user = req.userid;
   challenge.description = req.body.description;
   challenge.pattern = req.body.pattern;
   challenge.categories = req.body.categories;
@@ -361,8 +361,28 @@ challengesRoute.post(function(req, res) {
     if (err)
       res.send(err);
 
-    res.json({ message: 'Challenge added!', data: challenge });
+    User.findById(req.userid, function(err, user) {
+      if (err)
+        res.send(err);
+
+      if (user.associated_challenges.indexOf(challenge._id) == -1) {
+        user.associated_challenges.push(challenge._id);
+
+        user.save(function(err) {
+          if (err)
+            res.send(err);
+
+          res.json({ message: 'Challenge added!', data: challenge });
+        });
+      }
+      else {
+        res.json({ message: 'Challenge added!', data: challenge });
+      }
+    });
   });
+
+  
+  
 });
 
 // Route for /challenges/:challenge_id
@@ -426,7 +446,7 @@ challengeDetailRoute.get(function(req, res) {
 
       res.json(c);
     });
-  }).populate('attempts record_holders location');
+  }).populate('attempts location');
 });
 
 // Route for /challenges/:challenge_id/attempts
@@ -454,12 +474,6 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
       res.send(err);
 
     User.findById(req.userid, function(err, user) {
-      user.records.push(challenge);
-      user.save(function(err) {
-        if (err)
-          res.send(err);
-      });
-
       var attempt = new Attempt();
 
       var opts = {
@@ -483,17 +497,26 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
       attempt.save(function(err) {
         if (err)
           res.send(err);
-      });
 
-      challenge.updated_on = Date.now();
-      challenge.attempts.push(attempt);
-      challenge.record_holders.push(user);
-      challenge.save(function(err) {
-        if (err)
-          res.send(err);
-      });
+        challenge.updated_on = Date.now();
+        challenge.attempts.push(attempt);
+        challenge.save(function(err) {
+          if (err)
+            res.send(err);
 
-      res.json({ message: 'Attempt Created!', data: attempt }); 
+          if (user.associated_challenges.indexOf(challenge._id) == -1) {
+            user.associated_challenges.push(challenge._id);
+          }
+
+          user.records.push(challenge);
+          user.save(function(err) {
+            if (err)
+              res.send(err);
+
+            res.json({ message: 'Attempt Created!', data: attempt });
+          });   
+        });
+      });
     });
   });
 });
@@ -698,7 +721,7 @@ router.route('/locations').get(function(req, req_response) {
         FB.setAccessToken(res.access_token);
         FB.api('/search', 'GET', {
                 "type": "place",
-                "center": req.query.lat+","+req.query.lon,
+                "center": req.query.lat + "," + req.query.lon,
                 "distance": "5000",
                 "limit": "200"
             },
