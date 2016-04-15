@@ -13,7 +13,10 @@ var schemaOptions = {
 
 var AttemptSchema = new mongoose.Schema({
   challenge : { type: mongoose.Schema.ObjectId, ref: 'Challenge' },
-  description: { type: String, default: 'Attempt Description' }, 
+  description: { type: String, default: 'Attempt Description' },
+  type: String,
+  quantifier: String,
+  quantity: String,
   user: { type: mongoose.Schema.ObjectId, ref: 'User' },
   gif_img: String,
   orig_video: String,

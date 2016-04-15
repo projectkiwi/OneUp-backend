@@ -438,6 +438,9 @@ challengesRoute.post(function(req, res) {
     challenge.location = req.body.location_id;
     challenge.created_on = Date.now();
     challenge.updated_on = Date.now();
+    challenge.type = req.body.type;
+    challenge.quantifier = req.body.type;
+    challenge.quantity = req.body.type;
 
     // Optional
     challenge.pattern = req.body.pattern;
@@ -571,6 +574,9 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
       attempt.gif_img = gifpath;
       attempt.user = user;
       attempt.description = req.body.description;
+      attempt.type = challenge.type;
+      attempt.quantifier = challenge.quantifier;
+      attempt.quantity = req.body.quantity;
       attempt.challenge =  req.params.challenge_id;
       attempt.save(function(err) {
         if (err)
