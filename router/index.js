@@ -424,34 +424,34 @@ localPopularChallengesRoute.get(function(req, res) {
 
 // POST create a new challenge
 challengesRoute.post(function(req, res) {
-  var challenge = new Challenge();
-
-  // Required
-  challenge.user = req.userid;
-  challenge.name = req.body.name;
-  challenge.description = req.body.description;
-  challenge.categories = req.body.categories;
-  challenge.location = req.body.location_id;
-  challenge.created_on = Date.now();
-  challenge.updated_on = Date.now();
-
-  // Optional
-  challenge.pattern = req.body.pattern;
-  
-  challenge.save(function(err) {
+  User.findById(req.userid, function(err, user) {
     if (err)
-      res.send(err);
+      res.json({ success: false });
 
-    User.findById(req.userid, function(err, user) {
+    var challenge = new Challenge();
+
+    // Required
+    challenge.user = req.userid;
+    challenge.name = req.body.name;
+    challenge.description = req.body.description;
+    challenge.categories = req.body.categories;
+    challenge.location = req.body.location_id;
+    challenge.created_on = Date.now();
+    challenge.updated_on = Date.now();
+
+    // Optional
+    challenge.pattern = req.body.pattern;
+  
+    challenge.save(function(err) {
       if (err)
-        res.send(err);
+        res.json({ success: false });
 
       if (user.associated_challenges.indexOf(challenge._id) == -1) {
         user.associated_challenges.push(challenge._id);
 
         user.save(function(err) {
           if (err)
-            res.send(err);
+            res.json({ success: false });
 
           res.json({ message: 'Challenge added!', data: challenge });
         });
@@ -461,9 +461,6 @@ challengesRoute.post(function(req, res) {
       }
     });
   });
-
-  
-  
 });
 
 // Route for /challenges/:challenge_id
