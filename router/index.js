@@ -178,8 +178,19 @@ challengesRoute.get(function(req, res) {
               }
             });
           }, function(err) {
-            if (err)
+            if (err) {
               res.json({ success: false });
+            }
+            else {
+              c.save(function(err) {
+                if (err) {
+                  challengeCallback('Save Failed');
+                }
+                else {
+                  challengeCallback();
+                }
+        });
+            }
           });
         }
         else {
@@ -194,19 +205,21 @@ challengesRoute.get(function(req, res) {
               }
             });
           }, function(err) {
-            if (err)
+            if (err) {
               res.json({ success: false });
+            }
+            else {
+              c.save(function(err) {
+                if (err) {
+                  challengeCallback('Save Failed');
+                }
+                else {
+                  challengeCallback();
+                }
+              });
+            }
           });
         }
-
-        c.save(function(err) {
-          if (err) {
-            challengeCallback('Save Failed');
-          }
-          else {
-            challengeCallback();
-          }
-        });
       }, function(err) {
         if (err) {
           res.json({ success: false });
@@ -279,8 +292,19 @@ localNewChallengesRoute.get(function(req, res) {
               }
             });
           }, function(err) {
-            if (err)
+            if (err) {
               res.json({ success: false });
+            }
+            else {
+              c.save(function(err) {
+                if (err) {
+                  challengeCallback('Save Failed');
+                }
+                else {
+                  challengeCallback();
+                }
+              });
+            }
           });
         }
         else {
@@ -295,19 +319,21 @@ localNewChallengesRoute.get(function(req, res) {
               }
             });
           }, function(err) {
-            if (err)
+            if (err) {
               res.json({ success: false });
+            }
+            else {
+              c.save(function(err) {
+                if (err) {
+                  challengeCallback('Save Failed');
+                }
+                else {
+                  challengeCallback();
+                }
+              });
+            }
           });
         }
-
-        c.save(function(err) {
-          if (err) {
-            challengeCallback('Save Failed');
-          }
-          else {
-            challengeCallback();
-          }
-        });
       }, function(err) {
         if (err) {
           res.json({ success: false });
@@ -380,8 +406,19 @@ localPopularChallengesRoute.get(function(req, res) {
               }
             });
           }, function(err) {
-            if (err)
+            if (err) {
               res.json({ success: false });
+            }
+            else {
+              c.save(function(err) {
+                if (err) {
+                  challengeCallback('Save Failed');
+                }
+                else {
+                  challengeCallback();
+                }
+              });
+            }
           });
         }
         else {
@@ -396,19 +433,21 @@ localPopularChallengesRoute.get(function(req, res) {
               }
             });
           }, function(err) {
-            if (err)
+            if (err) {
               res.json({ success: false });
+            }
+            else {
+              c.save(function(err) {
+                if (err) {
+                  challengeCallback('Save Failed');
+                }
+                else {
+                  challengeCallback();
+                }
+              });
+            }
           });
         }
-
-        c.save(function(err) {
-          if (err) {
-            challengeCallback('Save Failed');
-          }
-          else {
-            challengeCallback();
-          }
-        });
       }, function(err) {
         if (err) {
           res.json({ success: false });
@@ -456,11 +495,11 @@ challengesRoute.post(function(req, res) {
           if (err)
             res.json({ success: false });
 
-          res.json({ message: 'Challenge added!', data: challenge });
+          res.json({ success: true, data: challenge });
         });
       }
       else {
-        res.json({ message: 'Challenge added!', data: challenge });
+        res.json({ success: true, data: challenge });
       }
     });
   });
@@ -473,11 +512,11 @@ var challengeDetailRoute = router.route('/challenges/:challenge_id');
 challengeDetailRoute.get(function(req, res) {
   Challenge.findById(req.params.challenge_id, function(err, c) {
     if (err)
-      res.send(err);
+      res.json({ success: false });
 
     User.findById(req.userid, function(err, user) {
       if (err)
-        res.send(err);
+        res.json({ success: false });
 
       var likedPrev = false;
       c.liked_top_attempt = false;
@@ -502,7 +541,7 @@ challengeDetailRoute.get(function(req, res) {
 
           a.save(function(err) {
             if (err)
-              res.send(err);
+              res.json({ success: false });
           });
         }
       }
@@ -511,7 +550,7 @@ challengeDetailRoute.get(function(req, res) {
           a.liked_attempt = false;
           a.save(function(err) {
             if (err)
-              res.send(err);
+              res.json({ success: false });
           });
         }
       }
@@ -521,11 +560,13 @@ challengeDetailRoute.get(function(req, res) {
       }
 
       c.save(function(err) {
-        if (err)
-          res.send(err);
+        if (err) {
+          res.json({ success: false });
+        }
+        else {
+          res.json(c);
+        }
       });
-
-      res.json(c);
     });
   }).populate('attempts location');
 });
@@ -677,7 +718,7 @@ var usersRoute = router.route('/users');
 usersRoute.get(function(req, res) {
   User.find().exec(function(err, users) {
     if (err)
-      res.send(err);
+      res.json({ success: false });
 
     res.json(users);
   });
@@ -723,9 +764,11 @@ router.route('/me').get(function(req,res) {
 
 router.route('/me').put(function(req,res) {
   User.findById(req.userid, function(err, user) {
+    if (err)
+      res.json({ success: false });
+
     if (req.body.username != undefined) {
       //todo: check for uniqueness on username
-      console.log("yo");
       user.username = req.body.username;
       user.save(function(err, user) {
         res.json(user);
@@ -742,7 +785,7 @@ var userBookmarksRoute = router.route('/me/bookmarks');
 userBookmarksRoute.get(function(req, res) {
   User.findById(req.userid, function(err, user) {
     if (err)
-      res.send(err);
+      res.json({ success: false });
 
     res.json(user.bookmarks);
   });
@@ -797,60 +840,61 @@ router.route('/auth/facebook').post(function(req,res) {
 
 
 router.route('/locations').get(function(req, req_response) {
-    FB.api('oauth/access_token', {
-        client_id: keys.fb_client_id,
-        client_secret: keys.fb_client_secret,
-        grant_type: 'client_credentials'
-    }, function(res) {
-        if (!res || res.error) {
-            console.log(!res ? 'error occurred' : res.error);
-            return;
+  FB.api('oauth/access_token', {
+      client_id: keys.fb_client_id,
+      client_secret: keys.fb_client_secret,
+      grant_type: 'client_credentials'
+    },
+    function(res) {
+      if (!res || res.error) {
+        console.log(!res ? 'error occurred' : res.error);
+        return;
+      }
+    
+      console.log(res);
+
+      FB.setAccessToken(res.access_token);
+      FB.api('/search', 'GET', {
+              "type": "place",
+              "center": req.query.lat + "," + req.query.lon,
+              "distance": "5000",
+              "limit": "200"
+        },
+        function(response) {
+          var promises = []; 
+          response.data.forEach(function(l) {
+            var promise = new Promise(function (resolve, reject) {
+              Location.findOne({
+                  'place_id': l.id
+                },
+                function(err, location) {
+                  if (err || location == null) {
+                    //create a new one
+                    location = new Location();
+                    location.name = l.name;
+                    location.place_id = l.id;
+                    location.location.coordinates = [l.location.longitude, l.location.latitude];
+                    location.save(function(err,location) {
+                      resolve(location);
+                    }); 
+                  }
+                  else {
+                      resolve(location);
+                  }
+                }
+              );
+            });
+            
+            promises.push(promise);
+          });
+            
+          Promise.all(promises).then(function(res) {
+            req_response.json({'locations': res});
+          });
         }
-        console.log(res);
-
-        FB.setAccessToken(res.access_token);
-        FB.api('/search', 'GET', {
-                "type": "place",
-                "center": req.query.lat + "," + req.query.lon,
-                "distance": "5000",
-                "limit": "200"
-            },
-            function(response) {
-              var promises = []; 
-                response.data.forEach(function(l) {
-                  var promise = new Promise(function (resolve, reject) {
-                    Location.findOne({
-                        'place_id': l.id
-                    }, function(err, location) {
-                        if (err || location == null) {
-                            //create a new one
-                            location = new Location();
-                            location.name = l.name;
-                            location.place_id = l.id;
-                            location.location.coordinates = [l.location.longitude, l.location.latitude]; //backwards on purpose
-                            location.save(function(err,location) {
-                              resolve(location);
-                            }); 
-                        }
-                        else {
-                            resolve(location);
-                        }
-
-                       
-                    });
-
-                      });
-                  promises.push(promise);
-                });
-                
-
-                Promise.all(promises)
-                .then(function (res) {
-                  req_response.json({'locations': res});
-                })
-            }
-        );
-    });
+      );
+    }
+  );
 });
 
 module.exports = router;
