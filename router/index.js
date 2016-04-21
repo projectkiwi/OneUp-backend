@@ -816,24 +816,23 @@ userBookmarksRoute.get(function(req, res) {
 });
 
 
-var userBookmarksRoute = router.route('/me/notifications');
+var userNotificationsRoute = router.route('/me/notifications');
 
-userBookmarksRoute.get(function(req, res) {
+userNotificationsRoute.get(function(req, res) {
   User.findById(req.userid, function(err, user) {
-    Challenge.findOne({},function(err,challenge){
+    Challenge.findOne({}, function(err, challenge) {
       var notifs = [];
-        n1 = new Notification();
-        n1.text = "liked your challenge";
-        n1.from = user;
-        n1.recipient = user;
-        n1.challenge = challenge;
-        notifs.push(n1);
-        notifs.push(n1);
+      
+      n1 = new Notification();
+      n1.text = "liked your challenge";
+      n1.from = user;
+      n1.recipient = user;
+      n1.challenge = challenge;
+      notifs.push(n1);
+      notifs.push(n1);
 
-        res.json(notifs);
-
+      res.json(notifs);
     });
-
   });
 });
 
