@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var deepPopulate = require('mongoose-deep-populate')(mongoose);
 
 var keys = require('../keys');
 
@@ -33,5 +34,6 @@ AttemptSchema.virtual('gif_full_url')
   return keys.server_url + "/" + this.gif_img;
 });
 
+AttemptSchema.plugin(deepPopulate);
 
 module.exports = mongoose.model('Attempt', AttemptSchema);

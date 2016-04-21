@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var winston = require('winston');
 var expressWinston = require('express-winston');
 var mongoosePaginate = require('mongoose-paginate');
+var deepPopulate = require('mongoose-deep-populate')(mongoose);
 var FB = require('fb');
 var jwt = require('jsonwebtoken');
 var keys = require('../keys');
@@ -169,13 +170,18 @@ challengesRoute.get(function(req, res) {
               a.liked_attempt = false;
             }
 
-            a.save(function(err) {
-              if (err) {
-                attemptCallback('Save Failed');
-              }
-              else {
-                attemptCallback();
-              }
+            a.deepPopulate('user', function(err, a_pop) {
+              if (err)
+                res.json({ success: false });
+
+              a.save(function(err) {
+                if (err) {
+                  attemptCallback('Save Failed');
+                }
+                else {
+                  attemptCallback();
+                }
+              });
             });
           }, function(err) {
             if (err) {
@@ -189,20 +195,25 @@ challengesRoute.get(function(req, res) {
                 else {
                   challengeCallback();
                 }
-        });
+              });
             }
           });
         }
         else {
           async.each(c.attempts, function(a, attemptCallback) {
             a.liked_attempt = false;
-            a.save(function(err) {
-              if (err) {
-                attemptCallback('Save Failed');
-              }
-              else {
-                attemptCallback();
-              }
+            a.deepPopulate('user', function(err, a_pop) {
+              if (err)
+                res.json({ success: false });
+
+              a.save(function(err) {
+                if (err) {
+                  attemptCallback('Save Failed');
+                }
+                else {
+                  attemptCallback();
+                }
+              });
             });
           }, function(err) {
             if (err) {
@@ -397,13 +408,18 @@ localPopularChallengesRoute.get(function(req, res) {
               a.liked_attempt = false;
             }
 
-            a.save(function(err) {
-              if (err) {
-                attemptCallback('Save Failed');
-              }
-              else {
-                attemptCallback();
-              }
+            a.deepPopulate('user', function(err, a_pop) {
+              if (err)
+                res.json({ success: false });
+
+              a.save(function(err) {
+                if (err) {
+                  attemptCallback('Save Failed');
+                }
+                else {
+                  attemptCallback();
+                }
+              });
             });
           }, function(err) {
             if (err) {
@@ -424,13 +440,18 @@ localPopularChallengesRoute.get(function(req, res) {
         else {
           async.each(c.attempts, function(a, attemptCallback) {
             a.liked_attempt = false;
-            a.save(function(err) {
-              if (err) {
-                attemptCallback('Save Failed');
-              }
-              else {
-                attemptCallback();
-              }
+            a.deepPopulate('user', function(err, a_pop) {
+              if (err)
+                res.json({ success: false });
+
+              a.save(function(err) {
+                if (err) {
+                  attemptCallback('Save Failed');
+                }
+                else {
+                  attemptCallback();
+                }
+              });
             });
           }, function(err) {
             if (err) {
@@ -632,8 +653,10 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
           if (user.associated_challenges.indexOf(challenge._id) == -1) {
             user.associated_challenges.push(challenge._id);
           }
+          if (user.records.indexOf(challege._id) == -1) {
+            user.records.push(challege);
+          }
 
-          user.records.push(challenge);
           user.save(function(err) {
             if (err)
               res.send(err);
