@@ -546,7 +546,7 @@ challengeDetailRoute.get(function(req, res) {
       c.bookmarked_challenge = false;
 
       if (c.user_likes.indexOf(req.userid) != -1) {
-        for (a of c.attempts) {
+        async.each(c.attempts, function(a, attemptCallback) {
           if (a.user_likes.indexOf(req.userid) != -1) {
             a.liked_attempt = true;
 
@@ -561,36 +561,75 @@ challengeDetailRoute.get(function(req, res) {
             a.liked_attempt = false;
           }
 
-          a.save(function(err) {
+          a.deepPopulate('user', function(err, a_pop) {
             if (err)
               res.json({ success: false });
+
+            a.save(function(err) {
+              if (err) {
+                attemptCallback('Save Failed');
+              }
+              else {
+                attemptCallback();
+              }
+            });
           });
-        }
+        },
+        function(err) {
+          if (err)
+            res.json({ success: false });
+
+          if (user.bookmarks.indexOf(c._id) != -1) {
+            c.bookmarked_challenge = true;
+          }
+
+          c.save(function(err) {
+            if (err) {
+              res.json({ success: false });
+            }
+            else {
+              res.json(c);
+            }
+          });
+        });
       }
       else {
-        for (a of c.attempts) {
+        async.each(c.attempts, function(a, attemptCallback) {
           a.liked_attempt = false;
-          a.save(function(err) {
+          a.deepPopulate('user', function(err, a_pop) {
             if (err)
               res.json({ success: false });
+
+            a.save(function(err) {
+              if (err) {
+                attemptCallback('Save Failed');
+              }
+              else {
+                attemptCallback();
+              }
+            });
           });
-        }
-      }
+        },
+        function(err) {
+          if (err)
+            res.json({ success: false });
 
-      if (user.bookmarks.indexOf(c._id) != -1) {
-        c.bookmarked_challenge = true;
-      }
+          if (user.bookmarks.indexOf(c._id) != -1) {
+            c.bookmarked_challenge = true;
+          }
 
-      c.save(function(err) {
-        if (err) {
-          res.json({ success: false });
-        }
-        else {
-          res.json(c);
-        }
-      });
+          c.save(function(err) {
+            if (err) {
+              res.json({ success: false });
+            }
+            else {
+              res.json(c);
+            }
+          });
+        });
+      }
     });
-  }).populate('attempts location');
+  }).populate('attempts location user');
 });
 
 // Route for /challenges/:challenge_id/attempts
