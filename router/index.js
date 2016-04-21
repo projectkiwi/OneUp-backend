@@ -19,6 +19,7 @@ var Attempt = require('../models/attempt');
 var User = require('../models/user');
 var Vote = require('../models/vote');
 var Location = require('../models/location');
+var Notification = require('../models/notification');
 
 var router = express.Router();
 
@@ -788,6 +789,28 @@ userBookmarksRoute.get(function(req, res) {
       res.json({ success: false });
 
     res.json(user.bookmarks);
+  });
+});
+
+
+var userBookmarksRoute = router.route('/me/notifications');
+
+userBookmarksRoute.get(function(req, res) {
+  User.findById(req.userid, function(err, user) {
+    Challenge.findOne({},function(err,challenge){
+      var notifs = [];
+        n1 = new Notification();
+        n1.text = "liked your challenge";
+        n1.from = user;
+        n1.recipient = user;
+        n1.challenge = challenge;
+        notifs.push(n1);
+        notifs.push(n1);
+
+        res.json(notifs);
+
+    });
+
   });
 });
 
