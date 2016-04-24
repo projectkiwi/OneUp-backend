@@ -8,7 +8,7 @@ The following **required** functionality is completed:
 
 #### User Story 2
 
-- [ ] Link challenge locations to the map view - Nicky
+- [X] Link challenge locations to the map view - Nicky
 - [ ] In list view, filter challenges based on a location radius - Jeremy
 
 #### User Story 3
