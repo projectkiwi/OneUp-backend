@@ -278,17 +278,6 @@ localNewChallengesRoute.get(function(req, res) {
     res.json(locations);
   });
 
-  /*Challenge.find({
-    location: {
-      $nearSphere: {
-        $geometry: {
-          type: "Point",
-          coordinates: [40.42, -86.91]
-        },
-        $maxDistance: 10000
-      }
-    }
-  });*/
 /*
   var options = {
     populate: 'attempts location user',
@@ -934,7 +923,7 @@ userBookmarksRoute.get(function(req, res) {
       res.json({ success: false });
 
     res.json({ docs: user.bookmarks });
-  });
+  }).populate(bookmarks);
 });
 
 
