@@ -697,7 +697,7 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
             user.records.push(challenge);
           }
 
-          user.save(function(err) {`
+          user.save(function(err) {
             if (err)
               res.send(err);
 
