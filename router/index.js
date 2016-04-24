@@ -251,6 +251,45 @@ var localNewChallengesRoute = router.route('/challenges/local/new');
 
 // GET local new challenges
 localNewChallengesRoute.get(function(req, res) {
+  /*var query = {
+    location: {
+      $nearSphere: {
+        $geometry: {
+          type: "Point",
+          coordinates: [40.42, -86.91]
+        },
+        $maxDistance: 10000
+      }
+    }
+  };*/
+
+  Location.find({
+    location: {
+      $nearSphere: {
+        $geometry: {
+          type: "Point",
+          coordinates: [-87.62, 41.87] // Backwards right now, (latitude longitude)
+                                       // Should be (longitude, latitude)
+        },
+        $maxDistance: 10000
+      }
+    }
+  }, function(err, locations) {
+    res.json(locations);
+  });
+
+  /*Challenge.find({
+    location: {
+      $nearSphere: {
+        $geometry: {
+          type: "Point",
+          coordinates: [40.42, -86.91]
+        },
+        $maxDistance: 10000
+      }
+    }
+  });*/
+/*
   var options = {
     populate: 'attempts location user',
     sort: {
@@ -261,9 +300,9 @@ localNewChallengesRoute.get(function(req, res) {
     limit: parseInt(req.headers.limit)
   };
 
-  Challenge.paginate({}, options, function(err, challenges) {
+  Challenge.paginate(query, options, function(err, challenges) {
     if (err)
-      res.json({ success: false });
+      res.json({ success: false, this: 'sucks' });
 
     User.findById(req.userid, function(err, user) {
       if (err)
@@ -368,7 +407,7 @@ localNewChallengesRoute.get(function(req, res) {
         }
       );
     });
-  });
+  });*/
 });
 
 // Route for /challenges/local/popular
@@ -894,7 +933,7 @@ userBookmarksRoute.get(function(req, res) {
     if (err)
       res.json({ success: false });
 
-    res.json(user.bookmarks);
+    res.json({ docs: user.bookmarks });
   });
 });
 
