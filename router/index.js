@@ -289,7 +289,7 @@ localNewChallengesRoute.get(function(req, res) {
     limit: parseInt(req.headers.limit)
   };
 
-  Challenge.paginate(query, options, function(err, challenges) {
+  Challenge.paginate({}, options, function(err, challenges) {
     if (err)
       res.json({ success: false, this: 'sucks' });
 
