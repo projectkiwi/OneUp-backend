@@ -654,11 +654,11 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
           if (user.associated_challenges.indexOf(challenge._id) == -1) {
             user.associated_challenges.push(challenge._id);
           }
-          if (user.records.indexOf(challege._id) == -1) {
-            user.records.push(challege);
+          if (user.records.indexOf(challenge._id) == -1) {
+            user.records.push(challenge);
           }
 
-          user.save(function(err) {
+          user.save(function(err) {`
             if (err)
               res.send(err);
 
