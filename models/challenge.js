@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var mongoosePaginate = require('mongoose-paginate');
+var deepPopulate = require('mongoose-deep-populate')(mongoose);
 
 var ChallengeSchema = new mongoose.Schema({
   name: String,
@@ -21,5 +22,6 @@ var ChallengeSchema = new mongoose.Schema({
 });
 
 ChallengeSchema.plugin(mongoosePaginate);
+ChallengeSchema.plugin(deepPopulate);
 
 module.exports = mongoose.model('Challenge', ChallengeSchema);
