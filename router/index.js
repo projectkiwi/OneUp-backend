@@ -263,7 +263,7 @@ localNewChallengesRoute.get(function(req, res) {
     }
   };*/
 
-  Location.find({
+  /*Location.find({
     location: {
       $nearSphere: {
         $geometry: {
@@ -276,9 +276,9 @@ localNewChallengesRoute.get(function(req, res) {
     }
   }, function(err, locations) {
     res.json(locations);
-  });
+  });*/
 
-/*
+
   var options = {
     populate: 'attempts location user',
     sort: {
@@ -396,7 +396,7 @@ localNewChallengesRoute.get(function(req, res) {
         }
       );
     });
-  });*/
+  });
 });
 
 // Route for /challenges/local/popular
@@ -923,7 +923,7 @@ userBookmarksRoute.get(function(req, res) {
       res.json({ success: false });
 
     res.json({ docs: user.bookmarks });
-  }).populate(bookmarks);
+  }).populate('bookmarks');
 });
 
 
