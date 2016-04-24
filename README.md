@@ -13,12 +13,12 @@ The following **required** functionality is completed:
 
 #### User Story 3
 
-- [ ] Express an opinion on past records by commenting - Jeremy
+- [X] Express an opinion on past records by commenting - Jeremy
 
 #### User Story 6
 
-- [ ] Implement Notifications - Nicky
-- [ ] Implement Push Notifications - Nicky
+- [X] Implement Notifications - Nicky
+- [X] Implement Push Notifications - Nicky
 
 #### User Story 7
 
@@ -27,7 +27,7 @@ The following **required** functionality is completed:
 
 #### User Story 8
 
-- [ ] As a user, I would like to be able to quickly distinguish challenges I’ve topped in the feed - Jeremy
+- [X] As a user, I would like to be able to quickly distinguish challenges I’ve topped in the feed - Jeremy
 
 #### User Story 9
 
