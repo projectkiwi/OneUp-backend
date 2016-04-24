@@ -502,9 +502,6 @@ challengesRoute.post(function(req, res) {
     challenge.type = req.body.type;
     challenge.quantifier = req.body.type;
     challenge.quantity = req.body.type;
-
-    // Optional
-    challenge.pattern = req.body.pattern;
   
     challenge.save(function(err) {
       if (err)
