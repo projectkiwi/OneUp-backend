@@ -233,14 +233,15 @@ challengesRoute.get(function(req, res) {
           });
         }
       }, function(err) {
-        if (err) {
-          res.json({ success: false });
+          if (err) {
+            res.json({ success: false });
+          }
+          else {
+            challenges.success = true;
+            res.json(challenges);
+          }
         }
-        else {
-          challenges.success = true;
-          res.json(challenges);
-        }
-      });
+      );
     });
   });
 });
@@ -295,13 +296,18 @@ localNewChallengesRoute.get(function(req, res) {
               a.liked_attempt = false;
             }
 
-            a.save(function(err) {
-              if (err) {
-                attemptCallback('Save Failed');
-              }
-              else {
-                attemptCallback();
-              }
+            a.deepPopulate('user', function(err, a_pop) {
+              if (err)
+                res.json({ success: false });
+
+              a.save(function(err) {
+                if (err) {
+                  attemptCallback('Save Failed');
+                }
+                else {
+                  attemptCallback();
+                }
+              });
             });
           }, function(err) {
             if (err) {
@@ -322,13 +328,18 @@ localNewChallengesRoute.get(function(req, res) {
         else {
           async.each(c.attempts, function(a, attemptCallback) {
             a.liked_attempt = false;
-            a.save(function(err) {
-              if (err) {
-                attemptCallback('Save Failed');
-              }
-              else {
-                attemptCallback();
-              }
+            a.deepPopulate('user', function(err, a_pop) {
+              if (err)
+                res.json({ success: false });
+
+              a.save(function(err) {
+                if (err) {
+                  attemptCallback('Save Failed');
+                }
+                else {
+                  attemptCallback();
+                }
+              });
             });
           }, function(err) {
             if (err) {
@@ -347,14 +358,15 @@ localNewChallengesRoute.get(function(req, res) {
           });
         }
       }, function(err) {
-        if (err) {
-          res.json({ success: false });
+          if (err) {
+            res.json({ success: false });
+          }
+          else {
+            challenges.success = true;
+            res.json(challenges);
+          }
         }
-        else {
-          challenges.success = true;
-          res.json(challenges);
-        }
-      });
+      );
     });
   });
 });
@@ -471,14 +483,15 @@ localPopularChallengesRoute.get(function(req, res) {
           });
         }
       }, function(err) {
-        if (err) {
-          res.json({ success: false });
+          if (err) {
+            res.json({ success: false });
+          }
+          else {
+            challenges.success = true;
+            res.json(challenges);
+          }
         }
-        else {
-          challenges.success = true;
-          res.json(challenges);
-        }
-      });
+      );
     });
   });
 });
@@ -502,9 +515,6 @@ challengesRoute.post(function(req, res) {
     challenge.type = req.body.type;
     challenge.quantifier = req.body.type;
     challenge.quantity = req.body.type;
-
-    // Optional
-    challenge.pattern = req.body.pattern;
   
     challenge.save(function(err) {
       if (err)
