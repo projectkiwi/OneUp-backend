@@ -21,6 +21,7 @@ var User = require('../models/user');
 var Vote = require('../models/vote');
 var Location = require('../models/location');
 var Notification = require('../models/notification');
+var Comment = require('../models/comment');
 
 var router = express.Router();
 
@@ -71,8 +72,7 @@ router.use(function(req, res, next) {
       }
     });
   }
-  else if (param_token)
-  {
+  else if (param_token) {
     var decoded = jwt.verify(param_token, 'secret'); 
     
     User.findById(decoded.uid, function(err, user) {
@@ -714,6 +714,40 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
             res.json({ message: 'Attempt Created!', data: attempt });
           });   
         });
+      });
+    });
+  });
+});
+
+var commentRoute = router.route('/challenges/comment/:attempt_id');
+commentRoute.post(function(req, res) {
+  Attempt.findById(req.params.attempt_id, function(err, attempt) {
+    if (err)
+      res.json({ success: false });
+
+    User.findById(req.userid, function(err, user) {
+      if (err)
+        res.json({ success: false });
+
+      var comment = new Comment();
+
+      comment.comment = req.body.comment;
+      comment.user = user;
+      attempt.comments.push(comment);
+
+      comment.save(function(err) {
+        if (err) {
+          res.json({ success: false });
+        }
+        else {
+          attempt.save(function(err) {
+            if (err)
+              res.json({ success: false });
+            else {
+              res.json({ success: true });
+            }
+          });
+        }
       });
     });
   });
