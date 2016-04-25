@@ -922,7 +922,7 @@ userBookmarksRoute.get(function(req, res) {
       res.json({ success: false });
 
     async.each(user.bookmarks, function(b, bookmarkCallback) {
-      b.deepPopulate('user attempts', function(err, b_pop) {
+      b.deepPopulate('user attempts attempts.user', function(err, b_pop) {
         if (err)
           res.json({ success: false });
 
@@ -953,7 +953,7 @@ userLikesRoute.get(function(req, res) {
       res.json({ success: false });
 
     async.each(user.liked_challenges, function(like, likeCallback) {
-      like.deepPopulate('user attempts', function(err, like_pop) {
+      like.deepPopulate('user attempts attempts.user', function(err, like_pop) {
         if (err)
           res.json({ success: false });
 
