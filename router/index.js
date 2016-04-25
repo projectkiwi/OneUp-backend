@@ -945,6 +945,37 @@ userBookmarksRoute.get(function(req, res) {
   }).populate('bookmarks');
 });
 
+var userLikesRoute = router.route('/me/likes');
+
+userLikesRoute.get(function(req, res) {
+  User.findById(req.userid, function(err, user) {
+    if (err)
+      res.json({ success: false });
+
+    async.each(user.liked_challenges, function(like, likeCallback) {
+      like.deepPopulate('user', function(err, like_pop) {
+        if (err)
+          res.json({ success: false });
+
+        like.save(function(err) {
+          if (err) {
+            likeCallback('Save Failed');
+          }
+          else {
+            likeCallback();
+          }
+        });
+      });
+    },
+    function(err) {
+      if (err)
+        res.json({ success: false });
+
+      res.json({ docs: user.liked_challenges });
+    });
+  }).populate('liked_challenges');
+});
+
 
 var userNotificationsRoute = router.route('/me/notifications');
 
