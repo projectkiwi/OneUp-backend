@@ -922,7 +922,7 @@ userBookmarksRoute.get(function(req, res) {
       res.json({ success: false });
 
     async.each(user.bookmarks, function(b, bookmarkCallback) {
-      b.deepPopulate('user', function(err, b_pop) {
+      b.deepPopulate('user attempts', function(err, b_pop) {
         if (err)
           res.json({ success: false });
 
