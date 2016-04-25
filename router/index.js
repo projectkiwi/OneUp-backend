@@ -263,20 +263,19 @@ localNewChallengesRoute.get(function(req, res) {
     }
   };*/
 
-  /*Location.find({
+  Location.find({
     location: {
       $nearSphere: {
         $geometry: {
           type: "Point",
-          coordinates: [-87.62, 41.87] // Backwards right now, (latitude longitude)
-                                       // Should be (longitude, latitude)
+          coordinates: [-87.62, 41.87] // latitude, longitude
         },
         $maxDistance: 10000
       }
     }
   }, function(err, locations) {
-    res.json(locations);
-  });*/
+    console.log(locations);
+  });
 
 
   var options = {
@@ -923,8 +922,59 @@ userBookmarksRoute.get(function(req, res) {
     if (err)
       res.json({ success: false });
 
-    res.json({ docs: user.bookmarks });
+    async.each(user.bookmarks, function(b, bookmarkCallback) {
+      b.deepPopulate('user attempts attempts.user', function(err, b_pop) {
+        if (err)
+          res.json({ success: false });
+
+        b.save(function(err) {
+          if (err) {
+            bookmarkCallback('Save Failed');
+          }
+          else {
+            bookmarkCallback();
+          }
+        });
+      });
+    },
+    function(err) {
+      if (err)
+        res.json({ success: false });
+
+      res.json({ docs: user.bookmarks });
+    });
   }).populate('bookmarks');
+});
+
+var userLikesRoute = router.route('/me/likes');
+
+userLikesRoute.get(function(req, res) {
+  User.findById(req.userid, function(err, user) {
+    if (err)
+      res.json({ success: false });
+
+    async.each(user.liked_challenges, function(like, likeCallback) {
+      like.deepPopulate('user attempts attempts.user', function(err, like_pop) {
+        if (err)
+          res.json({ success: false });
+
+        like.save(function(err) {
+          if (err) {
+            likeCallback('Save Failed');
+          }
+          else {
+            likeCallback();
+          }
+        });
+      });
+    },
+    function(err) {
+      if (err)
+        res.json({ success: false });
+
+      res.json({ docs: user.liked_challenges });
+    });
+  }).populate('liked_challenges');
 });
 
 
