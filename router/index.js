@@ -953,7 +953,7 @@ userLikesRoute.get(function(req, res) {
       res.json({ success: false });
 
     async.each(user.liked_challenges, function(like, likeCallback) {
-      like.deepPopulate('user', function(err, like_pop) {
+      like.deepPopulate('user attempts', function(err, like_pop) {
         if (err)
           res.json({ success: false });
 
