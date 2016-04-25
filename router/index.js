@@ -251,18 +251,6 @@ var localNewChallengesRoute = router.route('/challenges/local/new');
 
 // GET local new challenges
 localNewChallengesRoute.get(function(req, res) {
-  /*var query = {
-    location: {
-      $nearSphere: {
-        $geometry: {
-          type: "Point",
-          coordinates: [40.42, -86.91]
-        },
-        $maxDistance: 10000
-      }
-    }
-  };*/
-
   Location.find({
     location: {
       $nearSphere: {
@@ -290,7 +278,7 @@ localNewChallengesRoute.get(function(req, res) {
 
   Challenge.paginate({}, options, function(err, challenges) {
     if (err)
-      res.json({ success: false, this: 'sucks' });
+      res.json({ success: false });
 
     User.findById(req.userid, function(err, user) {
       if (err)
