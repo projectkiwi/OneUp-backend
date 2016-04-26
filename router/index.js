@@ -815,6 +815,15 @@ attemptLikeRoute.post(function(req, res) {
           
           challenge.challenge_likes += 1;
           challenge.user_likes.push(req.userid);
+
+          n1 = new Notification();
+          n1.text = "liked your challenge";
+          n1.from = user;
+          n1.recipient = challenge.user;
+          n1.challenge = challenge;
+          n1.save();
+
+          //sent notif
         }
 
         attempt.save(function(err) {
@@ -879,7 +888,16 @@ userBookmarkRoute.post(function(req, res) {
             if (err)
               res.json({ success: false });
 
-            res.json({ success: true, bookmark: true });
+            n1 = new Notification();
+            n1.text = "bookmarked your challenge";
+            n1.from = user;
+            n1.recipient = challenge.user;
+            n1.challenge = challenge;
+            n1.save(function(err,result)
+              {
+                res.json({ success: true, bookmark: true });
+              });
+            
           });
         });
       });
@@ -1059,17 +1077,8 @@ var userNotificationsRoute = router.route('/me/notifications');
 
 userNotificationsRoute.get(function(req, res) {
   User.findById(req.userid, function(err, user) {
-    Challenge.findOne({}, function(err, challenge) {
-      var notifs = [];
-      
-      n1 = new Notification();
-      n1.text = "liked your challenge";
-      n1.from = user;
-      n1.recipient = user;
-      n1.challenge = challenge;
-      notifs.push(n1);
-      notifs.push(n1);
-
+    Notification.find({'recipient': user}).populate('challenge recipient from').exec(function(err, notifs)
+    {
       res.json(notifs);
     });
   });
