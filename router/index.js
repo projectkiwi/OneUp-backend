@@ -530,6 +530,7 @@ challengesRoute.post(function(req, res) {
     challenge.type = req.body.type;
     challenge.quantifier = req.body.type;
     challenge.quantity = req.body.type;
+    challenge.user_associated.push(req.userid);
   
     challenge.save(function(err) {
       if (err)
@@ -711,6 +712,11 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
 
         challenge.updated_on = Date.now();
         challenge.attempts.push(attempt);
+
+        if (challenge.user_associated.indexOf(req.userid) == -1) {
+          challenge.user_associated.push(req.userid);
+        }
+
         challenge.save(function(err) {
           if (err)
             res.send(err);
@@ -863,7 +869,18 @@ userBookmarkRoute.post(function(req, res) {
         if (err)
           res.json({ success: false });
 
-        res.json({ success: true, bookmark: true });
+        Challenge.findById(req.params.challenge_id, function(err, challenge) {
+          if (err)
+            res.json({ success: false });
+
+          challenge.user_bookmarks.push(req.userid);
+          challenge.save(function(err) {
+            if (err)
+              res.json({ success: false });
+
+            res.json({ success: true, bookmark: true });
+          });
+        });
       });
     }
     else {
@@ -871,8 +888,20 @@ userBookmarkRoute.post(function(req, res) {
       user.save(function(err) {
         if (err)
           res.json({ success: false });
-          
-        res.json({ success: true, bookmark: false });
+
+        Challenge.findById(req.params.challenge_id, function(err, challenge) {
+          if (err)
+            res.json({ success: false });
+
+          var indexChallenge = challenge.user_bookmarks.indexOf(req.params.challenge_id);
+          challenge.user_bookmarks.splice(index, 1);
+          challenge.save(function(err) {
+            if (err)
+              res.json({ success: false });
+
+            res.json({ success: true, bookmark: false });
+          });
+        });
       });
     }
   });
@@ -905,16 +934,26 @@ router.route('/me').put(function(req,res) {
 var userBookmarksRoute = router.route('/me/bookmarks');
 
 userBookmarksRoute.get(function(req, res) {
-  User.findById(req.userid, function(err, user) {
+  var query = {
+    user_bookmarks: req.userid
+  };
+
+  var options = {
+    populate: 'attempts location user',
+    offset: parseInt(req.headers.offset), 
+    limit: parseInt(req.headers.limit)
+  };
+
+  Challenge.paginate(query, options, function(err, challenges) {
     if (err)
       res.json({ success: false });
 
-    async.each(user.bookmarks, function(b, bookmarkCallback) {
-      b.deepPopulate('user attempts attempts.user', function(err, b_pop) {
+    async.each(challenges.docs, function(c, bookmarkCallback) {
+      c.deepPopulate('attempts.user', function(err, c_pop) {
         if (err)
           res.json({ success: false });
 
-        b.save(function(err) {
+        c.save(function(err) {
           if (err) {
             bookmarkCallback('Save Failed');
           }
@@ -928,29 +967,39 @@ userBookmarksRoute.get(function(req, res) {
       if (err)
         res.json({ success: false });
 
-      res.json({ docs: user.bookmarks });
+      res.json(challenges);
     });
-  }).populate('bookmarks');
+  });
 });
 
 var userLikesRoute = router.route('/me/likes');
 
 userLikesRoute.get(function(req, res) {
-  User.findById(req.userid, function(err, user) {
+  var query = {
+    user_likes: req.userid
+  };
+
+  var options = {
+    populate: 'attempts location user',
+    offset: parseInt(req.headers.offset), 
+    limit: parseInt(req.headers.limit)
+  };
+
+  Challenge.paginate(query, options, function(err, challenges) {
     if (err)
       res.json({ success: false });
 
-    async.each(user.liked_challenges, function(like, likeCallback) {
-      like.deepPopulate('user attempts attempts.user', function(err, like_pop) {
+    async.each(challenges.docs, function(c, bookmarkCallback) {
+      c.deepPopulate('attempts.user', function(err, c_pop) {
         if (err)
           res.json({ success: false });
 
-        like.save(function(err) {
+        c.save(function(err) {
           if (err) {
-            likeCallback('Save Failed');
+            bookmarkCallback('Save Failed');
           }
           else {
-            likeCallback();
+            bookmarkCallback();
           }
         });
       });
@@ -959,11 +1008,51 @@ userLikesRoute.get(function(req, res) {
       if (err)
         res.json({ success: false });
 
-      res.json({ docs: user.liked_challenges });
+      res.json(challenges);
     });
-  }).populate('liked_challenges');
+  });
 });
 
+var userAssociatedChallengesRoute = router.route('/me/associated_challenges');
+
+userAssociatedChallengesRoute.get(function(req, res) {
+  var query = {
+    user_associated: req.userid
+  };
+
+  var options = {
+    populate: 'attempts location user',
+    offset: parseInt(req.headers.offset), 
+    limit: parseInt(req.headers.limit)
+  };
+
+  Challenge.paginate(query, options, function(err, challenges) {
+    if (err)
+      res.json({ success: false });
+
+    async.each(challenges.docs, function(c, bookmarkCallback) {
+      c.deepPopulate('attempts.user', function(err, c_pop) {
+        if (err)
+          res.json({ success: false });
+
+        c.save(function(err) {
+          if (err) {
+            bookmarkCallback('Save Failed');
+          }
+          else {
+            bookmarkCallback();
+          }
+        });
+      });
+    },
+    function(err) {
+      if (err)
+        res.json({ success: false });
+
+      res.json(challenges);
+    });
+  });
+});
 
 var userNotificationsRoute = router.route('/me/notifications');
 

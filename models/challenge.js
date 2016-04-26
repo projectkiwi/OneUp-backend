@@ -8,6 +8,8 @@ var ChallengeSchema = new mongoose.Schema({
   attempts: [{ type: mongoose.Schema.ObjectId, ref: 'Attempt' }],
   location: { type: mongoose.Schema.ObjectId, ref: 'Location' },
   user_likes: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+  user_bookmarks: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+  user_associated: [{ type: mongoose.Schema.ObjectId, ref: 'User '}],
   description: String,
   type: String,
   quantifier: String,
