@@ -686,7 +686,8 @@ challengeAttemptRoute.post(upload.single('video'), function(req, res) {
       var attempt = new Attempt();
 
       var opts = {
-        width: 300
+        width: 300,
+        rate: 5
       };
 
       var f = req.file.path.substr(0, req.file.path.lastIndexOf('_orig'));
